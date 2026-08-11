@@ -3,17 +3,11 @@ from pykrx import stock
 import config as cf
 
 def fetch_kr():
-    t = pd.read_html(
-        "http://kind.krx.co.kr/corpgeneral/corpList.do?method=download&searchType=13",
-        header=0, encoding="euc-kr")[0]
-    t["종목코드"] = t["종목코드"].astype(str).str.zfill(6)
-    names = dict(zip(t["종목코드"], t["회사명"]))
-
-    codes = [c for c in t["종목코드"] if c.isdigit() and c.endswith("0")]
+    tk = pd.read_csv("tickers.csv", dtype={"code": str})
+    names = dict(zip(tk["code"], tk["name"]))
+    codes = tk["code"].tolist()
     if cf.MAX_STOCKS:
-        import random
-        random.seed(1)
-        codes = random.sample(codes, cf.MAX_STOCKS)
+        codes = codes[:cf.MAX_STOCKS]
 
     out, fail = [], 0
     for i, c in enumerate(codes):
