@@ -1,0 +1,33 @@
+name: test
+
+on:
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - run: pip install pykrx pandas
+
+      - name: probe
+        run: |
+          python - <<'EOF'
+          from pykrx import stock
+          import traceback
+
+          def try_it(label, fn):
+              try:
+                  r = fn()
+                  print(f"[OK] {label}: {str(r)[:120]}")
+              except Exception as e:
+                  print(f"[FAIL] {label}: {type(e).__name__} {e}")
+
+          try_it("시가총액 전종목", lambda: stock.get_market_cap("20260807", market="ALL").shape)
+          try_it("종목목록", lambda: len(stock.get_market_ticker_list("20260807", market="ALL")))
+          try_it("한종목 시세", lambda: stock.get_market_ohlcv("20260801","20260807","005930").shape)
+          try_it("종목명", lambda: stock.get_market_ticker_name("005930"))
+          EOF
