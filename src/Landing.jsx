@@ -43,11 +43,22 @@ const LOCKED = [
 ];
 
 const ROW_H = 82;
+const HORIZONS = [
+  { k: "r1", label: "다음날" },
+  { k: "r5", label: "1주 뒤" },
+  { k: "r20", label: "1개월 뒤" },
+  { k: "rnow", label: "현재까지" },
+];
+
+const pct = (v) => (v === null || v === undefined ? "–" : `${v >= 0 ? "+" : ""}${v.toFixed(1)}%`);
+const tone = (v) => (v === null || v === undefined ? C.muted : v >= 0 ? C.up : C.down);
 
 export default function Landing() {
   const [w, setW] = useState(PRESETS["균형"]);
   const [data, setData] = useState(DEMO);
   const [live, setLive] = useState(false);
+  const [hist, setHist] = useState(null);
+  const [day, setDay] = useState("");
   const [reduce, setReduce] = useState(false);
   const formRef = useRef(null);
 
@@ -58,9 +69,21 @@ export default function Landing() {
     fetch("/heat_kr.json")
       .then((r) => r.json())
       .then((j) => {
-        if (Array.isArray(j) && j.length) {
-          setData(j);
-          setLive(true);
+        const list = Array.isArray(j) ? j : j.items;
+        if (Array.isArray(list) && list.length) {
+          setData(list);
+          setLive(j.updated || true);
+        }
+      })
+      .catch(() => {});
+
+    fetch("/history.json")
+      .then((r) => r.json())
+      .then((j) => {
+        const keys = Object.keys(j).sort();
+        if (keys.length) {
+          setHist(j);
+          setDay(keys[keys.length - 1]);
         }
       })
       .catch(() => {});
@@ -81,6 +104,19 @@ export default function Landing() {
     const order = [...scored].sort((a, b) => b.score - a.score).map((d) => d.id);
     return scored.map((d) => ({ ...d, rank: order.indexOf(d.id) }));
   }, [w, total, data]);
+
+  const days = useMemo(() => (hist ? Object.keys(hist).sort().reverse() : []), [hist]);
+
+  const avg = useMemo(() => {
+    if (!hist) return null;
+    const all = Object.values(hist).flat();
+    const out = {};
+    HORIZONS.forEach(({ k }) => {
+      const xs = all.map((x) => x[k]).filter((v) => v !== null && v !== undefined);
+      out[k] = xs.length ? xs.reduce((a, b) => a + b, 0) / xs.length : null;
+    });
+    return { out, n: all.length };
+  }, [hist]);
 
   const preset = Object.keys(PRESETS).find((k) => FACTORS.every((f) => PRESETS[k][f.id] === w[f.id]));
 
@@ -108,6 +144,14 @@ export default function Landing() {
         .lockcard { background:${C.panel}; border:1px solid ${C.line}; border-radius:4px; padding:18px; position:relative; overflow:hidden; }
         .lockcard::after { content:''; position:absolute; inset:0; pointer-events:none;
           background:repeating-linear-gradient(135deg, rgba(19,26,42,.035) 0 6px, transparent 6px 12px); }
+        .htable { width:100%; border-collapse:collapse; font-size:13px; }
+        .htable th { text-align:right; font-weight:600; font-size:11px; color:${C.muted};
+          padding:7px 8px; border-bottom:1px solid ${C.line}; white-space:nowrap; }
+        .htable th:first-child, .htable td:first-child { text-align:left; }
+        .htable td { padding:9px 8px; border-bottom:1px solid #F0F2F6; text-align:right; white-space:nowrap; }
+        .hscroll { overflow-x:auto; -webkit-overflow-scrolling:touch; }
+        .dsel { font-family:inherit; font-size:13px; padding:7px 10px; border-radius:3px;
+          border:1px solid ${C.line}; background:${C.panel}; color:${C.ink}; }
       `}</style>
 
       <div className="hd">
@@ -206,11 +250,84 @@ export default function Landing() {
               </div>
               <div style={{ fontSize: 11, color: C.muted, marginTop: 8 }}>
                 막대 길이 = 종합 점수, 색 = 어떤 팩터가 끌어올렸는지 ·{" "}
-                {live ? "국내 종목 실제 데이터 (일간 갱신)" : "데모용 샘플 데이터입니다"}
+                {live
+                  ? `국내 종목 실제 데이터${typeof live === "string" ? ` · ${live} 기준` : ""}`
+                  : "데모용 샘플 데이터입니다"}
               </div>
             </div>
           </div>
         </section>
+
+        {/* HISTORY */}
+        {hist && (
+          <section className="wrap" style={{ paddingBottom: 44 }}>
+            <div style={{ display: "flex", alignItems: "baseline", gap: 10, marginBottom: 14, flexWrap: "wrap" }}>
+              <h2 style={{ margin: 0, fontSize: 14, fontWeight: 700, letterSpacing: ".06em" }}>그날 상위 10개, 그 뒤 어떻게 됐나</h2>
+              <span style={{ fontSize: 12, color: C.muted }}>맞은 날도 틀린 날도 그대로 남깁니다</span>
+            </div>
+
+            {avg && (
+              <div style={{
+                background: C.panel, border: `1px solid ${C.line}`, borderRadius: 4,
+                padding: "14px 16px", marginBottom: 12,
+              }}>
+                <div style={{ fontSize: 11, color: C.muted, marginBottom: 10 }}>
+                  전체 {days.length}일 · {avg.n}건 평균
+                </div>
+                <div style={{ display: "grid", gap: 10, gridTemplateColumns: "repeat(auto-fit,minmax(96px,1fr))" }}>
+                  {HORIZONS.map(({ k, label }) => (
+                    <div key={k}>
+                      <div style={{ fontSize: 11, color: C.muted, marginBottom: 3 }}>{label}</div>
+                      <div className="mono" style={{ fontSize: 19, fontWeight: 700, color: tone(avg.out[k]) }}>
+                        {pct(avg.out[k])}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            <div style={{ background: C.panel, border: `1px solid ${C.line}`, borderRadius: 4, padding: "14px 16px" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 12, flexWrap: "wrap" }}>
+                <select className="dsel mono" value={day} onChange={(e) => setDay(e.target.value)}>
+                  {days.map((d) => <option key={d} value={d}>{d}</option>)}
+                </select>
+                <span style={{ fontSize: 12, color: C.muted }}>기준일 종가 대비 등락</span>
+              </div>
+
+              <div className="hscroll">
+                <table className="htable">
+                  <thead>
+                    <tr>
+                      <th>종목</th>
+                      <th>당일</th>
+                      {HORIZONS.map(({ k, label }) => <th key={k}>{label}</th>)}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {(hist[day] || []).map((it, i) => (
+                      <tr key={it.id}>
+                        <td>
+                          <span className="mono" style={{ color: C.muted, marginRight: 8 }}>{String(i + 1).padStart(2, "0")}</span>
+                          <span style={{ fontWeight: 600 }}>{it.name}</span>
+                        </td>
+                        <td className="mono" style={{ color: tone(it.chg) }}>{pct(it.chg)}</td>
+                        {HORIZONS.map(({ k }) => (
+                          <td key={k} className="mono" style={{ color: tone(it[k]) }}>{pct(it[k])}</td>
+                        ))}
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+
+              <div style={{ fontSize: 11, color: C.muted, marginTop: 12, lineHeight: 1.6 }}>
+                현재 상장된 종목만으로 과거 시점을 재현한 값입니다. 그사이 상장폐지·거래정지된 종목은 포함되지 않아
+                실제보다 유리하게 나올 수 있습니다. 수수료와 세금도 반영하지 않았습니다.
+              </div>
+            </div>
+          </section>
+        )}
 
         {/* LOCKED */}
         <section className="wrap" style={{ paddingBottom: 44 }}>
