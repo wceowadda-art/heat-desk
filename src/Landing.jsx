@@ -46,12 +46,25 @@ const ROW_H = 82;
 
 export default function Landing() {
   const [w, setW] = useState(PRESETS["균형"]);
+  const [data, setData] = useState(DEMO);
+  const [live, setLive] = useState(false);
   const [reduce, setReduce] = useState(false);
   const formRef = useRef(null);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
     if (window.matchMedia) setReduce(window.matchMedia("(prefers-reduced-motion: reduce)").matches);
+
+    fetch("/heat_kr.json")
+      .then((r) => r.json())
+      .then((j) => {
+        if (Array.isArray(j) && j.length) {
+          setData(j);
+          setLive(true);
+        }
+      })
+      .catch(() => {});
+
     const s = document.createElement("script");
     s.src = "https://tally.so/widgets/embed.js";
     s.onload = () => window.Tally && window.Tally.loadEmbeds();
@@ -61,13 +74,13 @@ export default function Landing() {
   const total = FACTORS.reduce((s, f) => s + w[f.id], 0);
 
   const rows = useMemo(() => {
-    const scored = DEMO.map((d) => {
-      const parts = FACTORS.map((f) => ({ ...f, value: total === 0 ? 0 : (w[f.id] * d.f[f.id]) / total }));
+    const scored = data.map((d) => {
+      const parts = FACTORS.map((f) => ({ ...f, value: total === 0 ? 0 : (w[f.id] * (d.f[f.id] ?? 0)) / total }));
       return { ...d, parts, score: parts.reduce((s, p) => s + p.value, 0) };
     });
     const order = [...scored].sort((a, b) => b.score - a.score).map((d) => d.id);
     return scored.map((d) => ({ ...d, rank: order.indexOf(d.id) }));
-  }, [w, total]);
+  }, [w, total, data]);
 
   const preset = Object.keys(PRESETS).find((k) => FACTORS.every((f) => PRESETS[k][f.id] === w[f.id]));
 
@@ -192,7 +205,8 @@ export default function Landing() {
                 ))}
               </div>
               <div style={{ fontSize: 11, color: C.muted, marginTop: 8 }}>
-                막대 길이 = 종합 점수, 색 = 어떤 팩터가 끌어올렸는지 · 데모용 샘플 데이터입니다
+                막대 길이 = 종합 점수, 색 = 어떤 팩터가 끌어올렸는지 ·{" "}
+                {live ? "국내 종목 실제 데이터 (일간 갱신)" : "데모용 샘플 데이터입니다"}
               </div>
             </div>
           </div>
