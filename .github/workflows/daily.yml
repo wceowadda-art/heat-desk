@@ -27,7 +27,7 @@ jobs:
           python fetch.py
           python score.py
 
-           - name: copy result
+      - name: copy result
         run: cp scripts/heat_kr.json public/heat_kr.json
 
       - name: commit
