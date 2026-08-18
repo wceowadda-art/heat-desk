@@ -27,13 +27,13 @@ jobs:
           python fetch.py
           python score.py
 
-      - name: copy result
+           - name: copy result
         run: cp scripts/heat_kr.json public/heat_kr.json
 
       - name: commit
         run: |
           git config user.name "github-actions"
           git config user.email "actions@github.com"
-          git add public/heat_kr.json
+          git add public/heat_kr.json public/history.json
           git diff --staged --quiet || git commit -m "update heat data"
           git push
