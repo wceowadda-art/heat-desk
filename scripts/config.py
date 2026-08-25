@@ -10,7 +10,7 @@ MIN_VALUE  = 1_000_000_000  # 최소 거래대금(원)
 SLEEP      = 0.4            # 호출 간격(초)
 
 TOP_KR   = 20
-TOP_COIN = 4
+TOP_COIN = 0
 
 COINS = ["KRW-BTC","KRW-ETH","KRW-XRP","KRW-SOL","KRW-DOGE","KRW-ADA",
          "KRW-AVAX","KRW-LINK","KRW-DOT","KRW-TRX","KRW-SAND","KRW-ATOM",
