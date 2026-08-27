@@ -60,6 +60,7 @@ export default function Landing() {
   const [hist, setHist] = useState(null);
   const [day, setDay] = useState("");
   const [reduce, setReduce] = useState(false);
+  const [factorFilter, setFactorFilter] = useState("vol");
   const formRef = useRef(null);
 
   useEffect(() => {
@@ -258,6 +259,55 @@ export default function Landing() {
           </div>
         </section>
 
+        {/* FACTORS RANKING */}
+        <section className="wrap" style={{ paddingBottom: 44 }}>
+          <div style={{ display: "flex", alignItems: "baseline", gap: 10, marginBottom: 14 }}>
+            <h2 style={{ margin: 0, fontSize: 14, fontWeight: 700, letterSpacing: ".06em" }}>팩터별 순위</h2>
+            <span style={{ fontSize: 12, color: C.muted }}>각 팩터가 강한 종목은?</span>
+          </div>
+
+          <div style={{ background: C.panel, border: `1px solid ${C.line}`, borderRadius: 4, padding: "14px 16px" }}>
+            <div style={{ display: "flex", gap: 8, marginBottom: 16, overflowX: "auto", paddingBottom: 4 }}>
+              {FACTORS.map((f) => (
+                <button
+                  key={f.id}
+                  onClick={() => setFactorFilter(f.id)}
+                  style={{
+                    cursor: "pointer", fontFamily: "inherit", fontSize: 12, fontWeight: 600,
+                    padding: "7px 11px", borderRadius: 2, border: `1px solid ${factorFilter === f.id ? C.ink : C.line}`,
+                    background: factorFilter === f.id ? f.color : "transparent",
+                    color: factorFilter === f.id ? "#fff" : C.ink, whiteSpace: "nowrap",
+                  }}
+                >{f.label}</button>
+              ))}
+            </div>
+
+            <div className="hscroll">
+              <table className="htable">
+                <thead>
+                  <tr>
+                    <th>순위</th>
+                    <th>종목</th>
+                    <th>점수</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {rows
+                    .sort((a, b) => (b.f[factorFilter] ?? 0) - (a.f[factorFilter] ?? 0))
+                    .slice(0, 10)
+                    .map((d, i) => (
+                      <tr key={d.id}>
+                        <td className="mono" style={{ color: C.muted }}>{String(i + 1).padStart(2, "0")}</td>
+                        <td style={{ fontWeight: 600 }}>{d.name}</td>
+                        <td className="mono" style={{ fontWeight: 700 }}>{(d.f[factorFilter] ?? 0).toFixed(1)}</td>
+                      </tr>
+                    ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
         {/* HISTORY */}
         {hist && (
           <section className="wrap" style={{ paddingBottom: 44 }}>
@@ -365,7 +415,7 @@ export default function Landing() {
             />
             <div style={{ fontSize: 12, color: C.muted, marginTop: 14, paddingTop: 14, borderTop: `1px solid ${C.line}` }}>
               폼이 보이지 않나요?{" "}
-              <a
+              
                 href={`https://tally.so/r/${TALLY_ID}`}
                 target="_blank"
                 rel="noopener noreferrer"
