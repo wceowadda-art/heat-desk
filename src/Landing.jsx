@@ -61,6 +61,8 @@ export default function Landing() {
   const [day, setDay] = useState("");
   const [reduce, setReduce] = useState(false);
   const [factorFilter, setFactorFilter] = useState("vol");
+  const [capTab, setCapTab] = useState("all");
+  const [capData, setCapData] = useState({});
   const formRef = useRef(null);
 
   useEffect(() => {
@@ -70,6 +72,17 @@ export default function Landing() {
     fetch("/heat_kr.json").then(r => r.json()).then(j => {
       const list = Array.isArray(j) ? j : j.items;
       if (Array.isArray(list) && list.length) { setData(list); setLive(j.updated || true); }
+      
+      if (j.by_cap) {
+        const capScored = Object.keys(j.by_cap).reduce((acc, key) => {
+          acc[key] = j.by_cap[key].map(d => {
+            const score = FACTORS.reduce((s, f) => s + (d.f[f.id] ?? 0), 0) / FACTORS.length;
+            return { ...d, score };
+          });
+          return acc;
+        }, {});
+        setCapData(capScored);
+      }
     }).catch(() => {});
 
     fetch("/history.json").then(r => r.json()).then(j => {
@@ -222,48 +235,69 @@ export default function Landing() {
           </div>
         </section>
 
+        <section className="wrap" style={{ paddingBottom: 44 }}>
+          <h2 style={{ margin: "0 0 14px", fontSize: 14, fontWeight: 700 }}>시총별 성과</h2>
+          <div style={{ background: C.panel, border: `1px solid ${C.line}`, borderRadius: 4, padding: 16 }}>
+            <div style={{ display: "flex", gap: 8, marginBottom: 16, overflowX: "auto" }}>
+              {[
+                { k: "all", label: "전체 (1~737)" },
+                { k: "large", label: "대형주 (1~500)" },
+                { k: "mid", label: "중형주 (500~737)" },
+              ].map(tab => (
+                <button key={tab.k} onClick={() => setCapTab(tab.k)}
+                  style={{
+                    cursor: "pointer", fontFamily: "inherit", fontSize: 12, fontWeight: 600, padding: "7px 11px", borderRadius: 2,
+                    border: `1px solid ${capTab === tab.k ? C.ink : C.line}`, background: capTab === tab.k ? C.ink : "transparent",
+                    color: capTab === tab.k ? "#fff" : C.ink, whiteSpace: "nowrap"
+                  }}
+                >{tab.label}</button>
+              ))}
+            </div>
+            <div className="hscroll">
+              <table className="htable">
+                <thead><tr><th>순위</th><th>종목</th><th>점수</th></tr></thead>
+                <tbody>
+                  {(capData[capTab] || []).slice(0, 10).map((d, i) => (
+                    <tr key={d.id}><td className="mono" style={{ color: C.muted }}>{String(i + 1).padStart(2, "0")}</td><td style={{ fontWeight: 600 }}>{d.name}</td><td className="mono" style={{ fontWeight: 700 }}>{d.score?.toFixed(1) || "–"}</td></tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
         {hist && (
-  <section className="wrap" style={{ paddingBottom: 44 }}>
-    <h2 style={{ margin: "0 0 14px", fontSize: 14, fontWeight: 700 }}>그날 상위 10개, 그 뒤 어떻게 됐나</h2>
-    {avg && (
-      <div style={{ background: C.panel, border: `1px solid ${C.line}`, borderRadius: 4, padding: 14, marginBottom: 12 }}>
-        <div style={{ fontSize: 11, color: C.muted, marginBottom: 10 }}>전체 {days.length}일 · {avg.n}건 평균</div>
-        <div style={{ display: "grid", gap: 10, gridTemplateColumns: "repeat(auto-fit,minmax(96px,1fr))" }}>
-          {HORIZONS.map(({ k, label }) => (
-            <div key={k}><div style={{ fontSize: 11, color: C.muted, marginBottom: 3 }}>{label}</div><div className="mono" style={{ fontSize: 19, fontWeight: 700, color: tone(avg.out[k]) }}>{pct(avg.out[k])}</div></div>
-          ))}
-        </div>
-      </div>
-    )}
-    <div style={{ background: C.panel, border: `1px solid ${C.line}`, borderRadius: 4, padding: 14 }}>
-      <div style={{ display: "flex", gap: 8, marginBottom: 12, overflowX: "auto" }}>
-        <select style={{ fontFamily: "inherit", fontSize: 13, padding: "7px 10px", borderRadius: 3, border: `1px solid ${C.line}`, background: C.panel, color: C.ink }} value={day} onChange={e => setDay(e.target.value)}>
-          {days.map(d => <option key={d} value={d}>{d}</option>)}
-        </select>
-        {FACTORS.map(f => (
-          <button key={f.id} onClick={() => setFactorFilter(f.id)}
-            style={{ cursor: "pointer", fontFamily: "inherit", fontSize: 12, fontWeight: 600, padding: "7px 11px", borderRadius: 2,
-              border: `1px solid ${factorFilter === f.id ? C.ink : C.line}`, background: factorFilter === f.id ? f.color : "transparent",
-              color: factorFilter === f.id ? "#fff" : C.ink, whiteSpace: "nowrap" }}
-          >{f.label}</button>
-        ))}
-      </div>
-      <div className="hscroll">
-        <table className="htable">
-          <thead><tr><th>순위</th><th>종목</th><th>당일</th>{HORIZONS.map(({ k, label }) => <th key={k}>{label}</th>)}</tr></thead>
-          <tbody>
-            {(hist[day] || [])
-              .sort((a, b) => (b.f?.[factorFilter] ?? 0) - (a.f?.[factorFilter] ?? 0))
-              .slice(0, 10)
-              .map((it, i) => (
-              <tr key={it.id}><td className="mono" style={{ color: C.muted }}>{String(i + 1).padStart(2, "0")}</td><td style={{ fontWeight: 600 }}>{it.name}</td><td className="mono" style={{ color: tone(it.chg) }}>{pct(it.chg)}</td>{HORIZONS.map(({ k }) => <td key={k} className="mono" style={{ color: tone(it[k]) }}>{pct(it[k])}</td>)}</tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-    </div>
-  </section>
-)}
+          <section className="wrap" style={{ paddingBottom: 44 }}>
+            <h2 style={{ margin: "0 0 14px", fontSize: 14, fontWeight: 700 }}>그날 상위 10개, 그 뒤 어떻게 됐나</h2>
+            {avg && (
+              <div style={{ background: C.panel, border: `1px solid ${C.line}`, borderRadius: 4, padding: 14, marginBottom: 12 }}>
+                <div style={{ fontSize: 11, color: C.muted, marginBottom: 10 }}>전체 {days.length}일 · {avg.n}건 평균</div>
+                <div style={{ display: "grid", gap: 10, gridTemplateColumns: "repeat(auto-fit,minmax(96px,1fr))" }}>
+                  {HORIZONS.map(({ k, label }) => (
+                    <div key={k}><div style={{ fontSize: 11, color: C.muted, marginBottom: 3 }}>{label}</div><div className="mono" style={{ fontSize: 19, fontWeight: 700, color: tone(avg.out[k]) }}>{pct(avg.out[k])}</div></div>
+                  ))}
+                </div>
+              </div>
+            )}
+            <div style={{ background: C.panel, border: `1px solid ${C.line}`, borderRadius: 4, padding: 14 }}>
+              <div style={{ marginBottom: 12 }}>
+                <select style={{ fontFamily: "inherit", fontSize: 13, padding: "7px 10px", borderRadius: 3, border: `1px solid ${C.line}`, background: C.panel, color: C.ink }} value={day} onChange={e => setDay(e.target.value)}>
+                  {days.map(d => <option key={d} value={d}>{d}</option>)}
+                </select>
+              </div>
+              <div className="hscroll">
+                <table className="htable">
+                  <thead><tr><th>종목</th><th>당일</th>{HORIZONS.map(({ k, label }) => <th key={k}>{label}</th>)}</tr></thead>
+                  <tbody>
+                    {(hist[day] || []).map((it, i) => (
+                      <tr key={it.id}><td><span className="mono" style={{ color: C.muted, marginRight: 8 }}>{String(i + 1).padStart(2, "0")}</span><span style={{ fontWeight: 600 }}>{it.name}</span></td><td className="mono" style={{ color: tone(it.chg) }}>{pct(it.chg)}</td>{HORIZONS.map(({ k }) => <td key={k} className="mono" style={{ color: tone(it[k]) }}>{pct(it[k])}</td>)}</tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </section>
+        )}
 
         <section className="wrap" style={{ paddingBottom: 44 }}>
           <h2 style={{ margin: "0 0 14px", fontSize: 14, fontWeight: 700 }}>오픈 시 열리는 것</h2>
