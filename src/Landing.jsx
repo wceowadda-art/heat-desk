@@ -63,6 +63,7 @@ export default function Landing() {
   const [factorFilter, setFactorFilter] = useState("vol");
   const [capTab, setCapTab] = useState("all");
   const [capData, setCapData] = useState({});
+  const [histTab, setHistTab] = useState("all");
   const formRef = useRef(null);
 
   useEffect(() => {
@@ -86,7 +87,7 @@ export default function Landing() {
     }).catch(() => {});
 
     fetch("/history.json").then(r => r.json()).then(j => {
-      const keys = Object.keys(j).sort();
+      const keys = Object.keys(j["all"] || j).sort();
       if (keys.length) { setHist(j); setDay(keys[keys.length - 1]); }
     }).catch(() => {});
 
@@ -107,11 +108,11 @@ export default function Landing() {
     return scored.map(d => ({ ...d, rank: order.indexOf(d.id) }));
   }, [w, total, data]);
 
-  const days = useMemo(() => (hist ? Object.keys(hist).sort().reverse() : []), [hist]);
+  const days = useMemo(() => (hist ? Object.keys(hist["all"] || hist).sort().reverse() : []), [hist]);
 
   const avg = useMemo(() => {
     if (!hist) return null;
-    const all = Object.values(hist).flat();
+    const all = Object.values(hist["all"] || hist).flat();
     const out = {};
     HORIZONS.forEach(({ k }) => {
       const xs = all.map(x => x[k]).filter(v => v !== null && v !== undefined);
@@ -280,6 +281,21 @@ export default function Landing() {
               </div>
             )}
             <div style={{ background: C.panel, border: `1px solid ${C.line}`, borderRadius: 4, padding: 14 }}>
+              <div style={{ display: "flex", gap: 8, marginBottom: 12, overflowX: "auto" }}>
+                {[
+                  { k: "all", label: "전체" },
+                  { k: "large", label: "대형주" },
+                  { k: "mid", label: "중형주" },
+                ].map(tab => (
+                  <button key={tab.k} onClick={() => setHistTab(tab.k)}
+                    style={{
+                      cursor: "pointer", fontSize: 12, fontWeight: 600, padding: "7px 11px", borderRadius: 2,
+                      border: `1px solid ${histTab === tab.k ? C.ink : C.line}`, background: histTab === tab.k ? C.ink : "transparent",
+                      color: histTab === tab.k ? "#fff" : C.ink, whiteSpace: "nowrap"
+                    }}
+                  >{tab.label}</button>
+                ))}
+              </div>
               <div style={{ marginBottom: 12 }}>
                 <select style={{ fontFamily: "inherit", fontSize: 13, padding: "7px 10px", borderRadius: 3, border: `1px solid ${C.line}`, background: C.panel, color: C.ink }} value={day} onChange={e => setDay(e.target.value)}>
                   {days.map(d => <option key={d} value={d}>{d}</option>)}
@@ -289,7 +305,7 @@ export default function Landing() {
                 <table className="htable">
                   <thead><tr><th>종목</th><th>당일</th>{HORIZONS.map(({ k, label }) => <th key={k}>{label}</th>)}</tr></thead>
                   <tbody>
-                    {(hist[day] || []).map((it, i) => (
+                    {(hist[histTab]?.[day] || hist[day] || []).map((it, i) => (
                       <tr key={it.id}><td><span className="mono" style={{ color: C.muted, marginRight: 8 }}>{String(i + 1).padStart(2, "0")}</span><span style={{ fontWeight: 600 }}>{it.name}</span></td><td className="mono" style={{ color: tone(it.chg) }}>{pct(it.chg)}</td>{HORIZONS.map(({ k }) => <td key={k} className="mono" style={{ color: tone(it[k]) }}>{pct(it[k])}</td>)}</tr>
                     ))}
                   </tbody>
