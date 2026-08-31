@@ -1,5 +1,6 @@
 import json, pandas as pd
 import config as cf
+import os
 
 FACTORS = ["vol", "mom", "high", "vola", "flow"]
 
@@ -48,10 +49,10 @@ if __name__ == "__main__":
                            {"close": "종가", "high": "고가", "low": "저가", "vol": "거래량"},
                            "국내", 1500, cf.MIN_VALUE)
     
-    coin = build("raw_coin.csv",
+    coin_list, _ = build("raw_coin.csv",
                  {"close": "trade_price", "high": "high_price",
                   "low": "low_price", "vol": "candle_acc_trade_volume"},
-                 "업비트", cf.TOP_COIN)[0]
+                 "업비트", cf.TOP_COIN)
 
     # 시총 기준 정렬
     kr_df_sorted = kr_df.sort_values("value", ascending=False)
@@ -71,7 +72,7 @@ if __name__ == "__main__":
     mid = to_json(kr_df_sorted.iloc[500:1000])    # 500~1000
     small = to_json(kr_df_sorted.iloc[1000:])     # 1000~1500
 
-    merged = top_kr + coin
+    merged = top_kr + coin_list
     
     output = {
         "updated": pd.Timestamp.now().isoformat(),
@@ -84,7 +85,7 @@ if __name__ == "__main__":
         }
     }
 
-    with open("heat_kr.json", "w", encoding="utf-8") as f:
+    with open("public/heat_kr.json", "w", encoding="utf-8") as f:
         json.dump(output, f, ensure_ascii=False, indent=2)
 
     print(f"✓ 전체: {len(all_stocks)}개")
