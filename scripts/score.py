@@ -46,8 +46,8 @@ def build(path, col, sub, top, min_value=0):
 
 if __name__ == "__main__":
     kr_list, kr_df = build("raw_kr.csv",
-                           {"close": "종가", "high": "고가", "low": "저가", "vol": "거래량"},
-                           "국내", 1500, cf.MIN_VALUE)
+                       {"close": "종가", "high": "고가", "low": "저가", "vol": "거래량"},
+                       "국내", 1500, 0)  # min_value=0
     
     coin_list, _ = build("raw_coin.csv",
                  {"close": "trade_price", "high": "high_price",
