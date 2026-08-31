@@ -46,7 +46,7 @@ def build(path, col, sub, top, min_value=0):
 
 def update_history():
     try:
-        with open("../public/history.json", "r", encoding="utf-8") as f:
+        with open("public/history.json", "r", encoding="utf-8") as f:
             hist = json.load(f)
             if isinstance(hist, dict) and "all" in hist:
                 return hist
