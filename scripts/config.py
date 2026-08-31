@@ -6,7 +6,7 @@ END   = _today.strftime("%Y%m%d")
 START = (_today - datetime.timedelta(days=75)).strftime("%Y%m%d")
 
 MAX_STOCKS = None           # 티커 목록 전부 사용
-MIN_VALUE  = 1_000_000_000  # 최소 거래대금(원)
+MIN_VALUE  = 0  # 최소 거래대금(원)
 SLEEP      = 0.4            # 호출 간격(초)
 
 TOP_KR   = 20
