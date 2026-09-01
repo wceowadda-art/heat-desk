@@ -46,7 +46,7 @@ def build(path, col, sub, top, min_value=0):
 
 def update_history():
     try:
-        with open("public/history.json", "r", encoding="utf-8") as f:
+        with open("../public/history.json", "r", encoding="utf-8") as f:
             hist = json.load(f)
             if isinstance(hist, dict) and "all" in hist:
                 return hist
@@ -57,7 +57,7 @@ def update_history():
 if __name__ == "__main__":
     kr_list, kr_df = build("raw_kr.csv",
                            {"close": "종가", "high": "고가", "low": "저가", "vol": "거래량"},
-                           "국내", 1500, cf.MIN_VALUE)
+                           "국내", 1500, 0)
     
     coin_list, _ = build("raw_coin.csv",
                  {"close": "trade_price", "high": "high_price",
@@ -89,10 +89,9 @@ if __name__ == "__main__":
         }
     }
 
-    with open("public/heat_kr.json", "w", encoding="utf-8") as f:
+    with open("../public/heat_kr.json", "w", encoding="utf-8") as f:
         json.dump(output, f, ensure_ascii=False, indent=2)
 
-    # history 업데이트
     hist = update_history()
     _today = datetime.datetime.now() + datetime.timedelta(hours=9)
     today_str = _today.strftime("%Y%m%d")
@@ -106,7 +105,6 @@ if __name__ == "__main__":
         
         hist["all"][today_str] = today_items
         
-        # 시총별 필터
         large_ids = set(kr_df_sorted.iloc[:500]["id"])
         mid_ids = set(kr_df_sorted.iloc[500:1000]["id"])
         
@@ -117,4 +115,4 @@ if __name__ == "__main__":
         json.dump(hist, f, ensure_ascii=False, indent=2)
 
     print(f"✓ heat_kr.json: {len(all_stocks)}개")
-    print(f"✓ history.json: all={len(hist['all'])}, large={len(hist['large'])}, mid={len(hist['mid'])}")
+    print(f"✓ history.json updated")
