@@ -52,7 +52,7 @@ def build(path, col, sub, top, min_value=0):
         "id": r["id"], "name": r["name"], "sub": sub, "chg": float(r["chg"]),
         "f": {k: float(r[k + "_s"]) for k in FACTORS},
     } for _, r in df.iterrows()]
-    
+
     return scored, df
 
 def update_history():
@@ -60,16 +60,19 @@ def update_history():
         with open("../public/history.json", "r", encoding="utf-8") as f:
             hist = json.load(f)
             if isinstance(hist, dict) and "all" in hist:
+                hist.setdefault("large", {})
+                hist.setdefault("mid", {})
+                hist.setdefault("small", {})
                 return hist
     except:
         pass
-    return {"all": {}, "large": {}, "mid": {}}
+    return {"all": {}, "large": {}, "mid": {}, "small": {}}
 
 if __name__ == "__main__":
     kr_list, kr_df = build("raw_kr.csv",
                            {"close": "종가", "high": "고가", "low": "저가", "vol": "거래량"},
                            "국내", 1500, 0)
-    
+
     coin_list, _ = build("raw_coin.csv",
                  {"close": "trade_price", "high": "high_price",
                   "low": "low_price", "vol": "candle_acc_trade_volume"},
@@ -77,20 +80,20 @@ if __name__ == "__main__":
 
     kr_df_sorted = kr_df.sort_values("value", ascending=False)
     top_kr = kr_list[:cf.TOP_KR]
-    
+
     def to_json(df_subset):
         return [{
             "id": r["id"], "name": r["name"], "sub": "국내", "chg": float(r["chg"]),
             "f": {k: float(r[k + "_s"]) for k in FACTORS},
         } for _, r in df_subset.iterrows()]
-    
+
     all_stocks = to_json(kr_df_sorted)
     large = to_json(kr_df_sorted.iloc[:500])
     mid = to_json(kr_df_sorted.iloc[500:1000])
     small = to_json(kr_df_sorted.iloc[1000:2000])
 
     merged = top_kr + coin_list
-    
+
     output = {
         "updated": pd.Timestamp.now().isoformat(),
         "items": merged,
@@ -109,25 +112,27 @@ if __name__ == "__main__":
     hist = update_history()
     _today = datetime.datetime.now() + datetime.timedelta(hours=9)
     today_str = _today.strftime("%Y%m%d")
-    
+
     if today_str not in hist["all"]:
         today_items = [{
             "id": r["id"], "name": r["name"], "chg": float(r["chg"]),
             "r1": None, "r5": None, "r20": None, "rnow": None,
             "f": r["f"]
         } for r in merged]
-        
+
         hist["all"][today_str] = today_items
-        
+
         large_ids = set(kr_df_sorted.iloc[:500]["id"])
         mid_ids = set(kr_df_sorted.iloc[500:1000]["id"])
-        
+        small_ids = set(kr_df_sorted.iloc[1000:2000]["id"])
+
         hist["large"][today_str] = [x for x in today_items if x["id"] in large_ids]
         hist["mid"][today_str] = [x for x in today_items if x["id"] in mid_ids]
-    
+        hist["small"][today_str] = [x for x in today_items if x["id"] in small_ids]
+
     hist = clean_nan(hist)
     with open("../public/history.json", "w", encoding="utf-8") as f:
         json.dump(hist, f, ensure_ascii=False, indent=2)
 
-    print(f"✓ heat_kr.json: {len(all_stocks)}개")
+    print(f"✓ heat_kr.json: {len(all_stocks)}개 (large={len(large)}, mid={len(mid)}, small={len(small)})")
     print(f"✓ history.json updated")
