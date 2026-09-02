@@ -98,7 +98,7 @@ if __name__ == "__main__":
             "all": all_stocks,
             "large": large,
             "mid": mid,
-            "small": small
+            "small": small,
         }
     }
     output = clean_nan(output)
