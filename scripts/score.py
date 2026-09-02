@@ -1,6 +1,7 @@
 import json, pandas as pd
 import config as cf
 import datetime
+import math
 
 FACTORS = ["vol", "mom", "high", "vola", "flow"]
 
@@ -9,15 +10,24 @@ def factors(g, col):
     rng = (g[col["high"]] - g[col["low"]]) / cl
     val = cl * v
     return {
-        "vol":  v.iloc[-1] / v.iloc[:-1].mean() if len(v) > 1 else 0,
-        "mom":  cl.iloc[-1] / cl.iloc[0] - 1 if len(cl) > 1 else 0,
+        "vol":  v.iloc[-1] / v.iloc[:-1].mean() if len(v) > 1 and v.iloc[:-1].mean() != 0 else 0,
+        "mom":  cl.iloc[-1] / cl.iloc[0] - 1 if len(cl) > 1 and cl.iloc[0] != 0 else 0,
         "high": cl.iloc[-1] / g[col["high"]].max() if g[col["high"]].max() > 0 else 0,
         "vola": rng.iloc[-1] / rng.iloc[:-1].mean() if len(rng) > 1 and rng.iloc[:-1].mean() != 0 else 0,
         "flow": val.iloc[-5:].mean() / val.iloc[:-5].mean() if len(val) > 5 and val.iloc[:-5].mean() != 0 else 0,
         "close": float(cl.iloc[-1]),
         "value": float(cl.iloc[-1] * v.iloc[-1]),
-        "chg":   round((cl.iloc[-1] / cl.iloc[-2] - 1) * 100, 2) if len(cl) > 1 else 0,
+        "chg":   round((cl.iloc[-1] / cl.iloc[-2] - 1) * 100, 2) if len(cl) > 1 and cl.iloc[-2] != 0 else 0,
     }
+
+def clean_nan(obj):
+    if isinstance(obj, dict):
+        return {k: clean_nan(v) for k, v in obj.items()}
+    if isinstance(obj, list):
+        return [clean_nan(v) for v in obj]
+    if isinstance(obj, float) and math.isnan(obj):
+        return None
+    return obj
 
 def build(path, col, sub, top, min_value=0):
     raw = pd.read_csv(path, dtype={"code": str})
@@ -33,6 +43,7 @@ def build(path, col, sub, top, min_value=0):
         rows.append(f)
 
     df = pd.DataFrame(rows)
+    df = df.dropna(subset=FACTORS)
     for k in FACTORS:
         df[k + "_s"] = (df[k].rank(pct=True) * 100).round(1)
     df["total"] = df[[k + "_s" for k in FACTORS]].mean(axis=1)
@@ -88,6 +99,7 @@ if __name__ == "__main__":
             "mid": mid,
         }
     }
+    output = clean_nan(output)
 
     with open("../public/heat_kr.json", "w", encoding="utf-8") as f:
         json.dump(output, f, ensure_ascii=False, indent=2)
@@ -111,6 +123,7 @@ if __name__ == "__main__":
         hist["large"][today_str] = [x for x in today_items if x["id"] in large_ids]
         hist["mid"][today_str] = [x for x in today_items if x["id"] in mid_ids]
     
+    hist = clean_nan(hist)
     with open("../public/history.json", "w", encoding="utf-8") as f:
         json.dump(hist, f, ensure_ascii=False, indent=2)
 
