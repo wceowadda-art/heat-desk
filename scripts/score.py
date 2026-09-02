@@ -87,6 +87,7 @@ if __name__ == "__main__":
     all_stocks = to_json(kr_df_sorted)
     large = to_json(kr_df_sorted.iloc[:500])
     mid = to_json(kr_df_sorted.iloc[500:1000])
+    small = to_json(kr_df_sorted.iloc[1000:2000])
 
     merged = top_kr + coin_list
     
@@ -97,6 +98,7 @@ if __name__ == "__main__":
             "all": all_stocks,
             "large": large,
             "mid": mid,
+            "small": small
         }
     }
     output = clean_nan(output)
