@@ -73,7 +73,7 @@ export default function Landing() {
     fetch("/heat_kr.json").then(r => r.json()).then(j => {
       const list = Array.isArray(j) ? j : j.items;
       if (Array.isArray(list) && list.length) { setData(list); setLive(j.updated || true); }
-      
+
       if (j.by_cap) {
         const capScored = Object.keys(j.by_cap).reduce((acc, key) => {
           acc[key] = j.by_cap[key].map(d => {
@@ -237,13 +237,17 @@ export default function Landing() {
         </section>
 
         <section className="wrap" style={{ paddingBottom: 44 }}>
-          <h2 style={{ margin: "0 0 14px", fontSize: 14, fontWeight: 700 }}>시총별 성과</h2>
+          <h2 style={{ margin: "0 0 6px", fontSize: 14, fontWeight: 700 }}>시총별 발열 순위</h2>
+          <p style={{ fontSize: 12, color: C.muted, margin: "0 0 14px" }}>
+            점수는 5개 팩터(거래량·모멘텀·신고가·변동성·자금유입)의 평균 백분위입니다. 높을수록 지금 더 뜨겁다는 뜻입니다.
+          </p>
           <div style={{ background: C.panel, border: `1px solid ${C.line}`, borderRadius: 4, padding: 16 }}>
             <div style={{ display: "flex", gap: 8, marginBottom: 16, overflowX: "auto" }}>
               {[
-                { k: "all", label: "전체 (1~737)" },
+                { k: "all", label: "전체" },
                 { k: "large", label: "대형주 (1~500)" },
-                { k: "mid", label: "중형주 (500~737)" },
+                { k: "mid", label: "중형주 (500~1000)" },
+                { k: "small", label: "소형주 (1000~2000)" },
               ].map(tab => (
                 <button key={tab.k} onClick={() => setCapTab(tab.k)}
                   style={{
@@ -286,6 +290,7 @@ export default function Landing() {
                   { k: "all", label: "전체" },
                   { k: "large", label: "대형주" },
                   { k: "mid", label: "중형주" },
+                  { k: "small", label: "소형주" },
                 ].map(tab => (
                   <button key={tab.k} onClick={() => setHistTab(tab.k)}
                     style={{
