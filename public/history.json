@@ -1642,7 +1642,7 @@
         "r20": null,
         "rnow": null,
         "f": {
-          "vol": NaN,
+          "vol": null,
           "mom": 56.5,
           "high": 1.6,
           "vola": 3.2,
