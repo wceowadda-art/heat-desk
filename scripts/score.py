@@ -73,24 +73,40 @@ if __name__ == "__main__":
                            {"close": "종가", "high": "고가", "low": "저가", "vol": "거래량"},
                            "국내", 1500, 0)
 
+    # config.py의 TOP_COIN 값을 그대로 신뢰하되, 실제 반영값을 화면에 출력해서 확인
+    print(f"[확인] config.TOP_COIN = {cf.TOP_COIN}")
+
     coin_list, _ = build("raw_coin.csv",
                  {"close": "trade_price", "high": "high_price",
                   "low": "low_price", "vol": "candle_acc_trade_volume"},
                  "업비트", cf.TOP_COIN)
+    # TOP_COIN이 0이면 강제로 코인 리스트를 비움 (이중 안전장치)
+    if cf.TOP_COIN == 0:
+        coin_list = []
 
-    kr_df_sorted = kr_df.sort_values("value", ascending=False)
+    # 시총 기준 정렬 (구간을 나누기 위한 정렬)
+    kr_df_by_cap = kr_df.sort_values("value", ascending=False).reset_index(drop=True)
     top_kr = kr_list[:cf.TOP_KR]
 
-    def to_json(df_subset):
+    def to_json_sorted_by_score(df_subset):
+        # 구간 안에서 total(팩터 종합 점수) 기준으로 다시 정렬
+        df_subset = df_subset.sort_values("total", ascending=False)
         return [{
             "id": r["id"], "name": r["name"], "sub": "국내", "chg": float(r["chg"]),
             "f": {k: float(r[k + "_s"]) for k in FACTORS},
         } for _, r in df_subset.iterrows()]
 
-    all_stocks = to_json(kr_df_sorted)
-    large = to_json(kr_df_sorted.iloc[:500])
-    mid = to_json(kr_df_sorted.iloc[500:1000])
-    small = to_json(kr_df_sorted.iloc[1000:2000])
+    # 전체(all)는 종합 점수 기준 정렬
+    all_stocks = to_json_sorted_by_score(kr_df_by_cap)
+
+    # 대형주/중형주/소형주는 "시총 구간으로 자른 뒤", 그 구간 안에서 점수순 재정렬
+    large_df = kr_df_by_cap.iloc[:500]
+    mid_df = kr_df_by_cap.iloc[500:1000]
+    small_df = kr_df_by_cap.iloc[1000:2000]
+
+    large = to_json_sorted_by_score(large_df)
+    mid = to_json_sorted_by_score(mid_df)
+    small = to_json_sorted_by_score(small_df)
 
     merged = top_kr + coin_list
 
@@ -122,9 +138,9 @@ if __name__ == "__main__":
 
         hist["all"][today_str] = today_items
 
-        large_ids = set(kr_df_sorted.iloc[:500]["id"])
-        mid_ids = set(kr_df_sorted.iloc[500:1000]["id"])
-        small_ids = set(kr_df_sorted.iloc[1000:2000]["id"])
+        large_ids = set(large_df["id"])
+        mid_ids = set(mid_df["id"])
+        small_ids = set(small_df["id"])
 
         hist["large"][today_str] = [x for x in today_items if x["id"] in large_ids]
         hist["mid"][today_str] = [x for x in today_items if x["id"] in mid_ids]
@@ -134,5 +150,6 @@ if __name__ == "__main__":
     with open("../public/history.json", "w", encoding="utf-8") as f:
         json.dump(hist, f, ensure_ascii=False, indent=2)
 
-    print(f"✓ heat_kr.json: {len(all_stocks)}개 (large={len(large)}, mid={len(mid)}, small={len(small)})")
+    print(f"✓ heat_kr.json: all={len(all_stocks)}, large={len(large)}, mid={len(mid)}, small={len(small)}")
+    print(f"✓ items(상위+코인) 개수: {len(merged)} (코인 {len(coin_list)}개 포함)")
     print(f"✓ history.json updated")
