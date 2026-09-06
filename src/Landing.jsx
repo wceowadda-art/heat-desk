@@ -186,13 +186,14 @@ export default function Landing() {
 
             <div>
               <div style={{ position: "relative", height: rows.length * ROW_H }}>
-                {rows.map(d => (
-                  <div key={d.id} style={{
+               {rows.map(d => (
+                  <div key={d.id} onClick={() => window.location.href = `/?page=diagnose&stock=${encodeURIComponent(d.name)}`} style={{
                     position: "absolute", left: 0, right: 0, height: ROW_H - 6,
                     transform: `translateY(${d.rank * ROW_H}px)`,
                     transition: "transform 480ms cubic-bezier(.2,.85,.25,1)",
                     background: C.panel, border: `1px solid ${C.line}`, borderRadius: 4, padding: "11px 13px",
                     display: "flex", flexDirection: "column", justifyContent: "space-between",
+                    cursor: "pointer",
                   }}>
                     <div style={{ display: "flex", alignItems: "baseline", gap: 10 }}>
                       <span className="mono" style={{ fontSize: 12, color: C.muted, width: 20 }}>{String(d.rank + 1).padStart(2, "0")}</span>
