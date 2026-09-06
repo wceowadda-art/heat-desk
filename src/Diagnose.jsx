@@ -11,20 +11,20 @@ const C = {
   warn: "#D9B434",
 };
 
-const SCORE_ITEMS = [
-  { key: "company", label: "기업", reasonReady: false, reasonText: "실적·재무 데이터 연결 예정" },
-  { key: "market", label: "시장", reasonReady: true, reasonText: null },
-  { key: "theme", label: "테마", reasonReady: false, reasonText: "테마 강도 데이터 연결 예정" },
-  { key: "event", label: "이벤트", reasonReady: false, reasonText: "공시·뉴스 이벤트 데이터 연결 예정" },
-];
-
+// 시장 점수 하단 팩터 이름. "자금 유입" -> "거래대금 흐름"으로 정정 (실제로는 수급이 아니라 OHLCV 기반 계산).
 const FACTOR_LABELS = {
   vol: "거래량 급증",
   mom: "모멘텀",
   high: "신고가 근접",
   vola: "변동성 확대",
-  flow: "자금 유입",
+  flow: "거래대금 흐름",
 };
+
+const PENDING_ITEMS = [
+  { key: "company", label: "기업" },
+  { key: "theme", label: "테마" },
+  { key: "event", label: "이벤트" },
+];
 
 function statusFromMarketScore(score) {
   if (score === null || score === undefined) return { label: "데이터 없음", color: C.muted };
@@ -36,6 +36,7 @@ function statusFromMarketScore(score) {
 export default function Diagnose() {
   const [query, setQuery] = useState("");
   const [allStocks, setAllStocks] = useState([]);
+  const [updatedAt, setUpdatedAt] = useState(null);
   const [result, setResult] = useState(null);
   const [searched, setSearched] = useState(false);
   const [notFound, setNotFound] = useState(false);
@@ -46,6 +47,7 @@ export default function Diagnose() {
       .then((j) => {
         const list = j?.by_cap?.all || [];
         setAllStocks(list);
+        setUpdatedAt(j?.updated || null);
       })
       .catch(() => {});
   }, []);
@@ -73,7 +75,7 @@ export default function Diagnose() {
       sub: found.sub,
       chg: found.chg,
       factors: found.f,
-      scores: { company: null, market: marketScore, theme: null, event: null },
+      marketScore,
     });
     setNotFound(false);
     setSearched(true);
@@ -83,7 +85,17 @@ export default function Diagnose() {
     if (e.key === "Enter") handleSearch();
   };
 
-  const status = result ? statusFromMarketScore(result.scores.market) : null;
+  const status = result ? statusFromMarketScore(result.marketScore) : null;
+
+  const formattedDate = (() => {
+    if (!updatedAt) return null;
+    try {
+      const d = new Date(updatedAt);
+      return `${d.getFullYear()}.${String(d.getMonth() + 1).padStart(2, "0")}.${String(d.getDate()).padStart(2, "0")} 기준`;
+    } catch {
+      return null;
+    }
+  })();
 
   return (
     <div style={{ background: C.ground, minHeight: "100vh", color: C.ink }}>
@@ -99,10 +111,10 @@ export default function Diagnose() {
       <div className="dg">
         <section className="wrap" style={{ paddingTop: 56, paddingBottom: 28 }}>
           <h1 style={{ fontSize: "clamp(24px,5vw,32px)", fontWeight: 700, margin: "0 0 8px" }}>
-            내 종목 상태를 확인하세요
+            내 종목의 시장 신호를 확인하세요
           </h1>
           <p style={{ fontSize: 14, color: C.muted, margin: 0 }}>
-            종목명을 정확히 입력하면 지금 상태를 점수로 보여드립니다.
+            가격·거래량 흐름을 바탕으로 현재 상태를 보여드립니다.
           </p>
         </section>
 
@@ -146,53 +158,61 @@ export default function Diagnose() {
         {searched && result && (
           <section className="wrap" style={{ paddingBottom: 48 }}>
             <div style={{ borderTop: `1px solid ${C.line}`, paddingTop: 24 }}>
-              <div style={{ fontSize: 11, color: C.muted, marginBottom: 16, letterSpacing: ".04em" }}>
-                "시장" 점수는 실제 데이터, 나머지는 준비 중입니다
+              {/* 종목 헤더 */}
+              <div style={{ display: "flex", alignItems: "baseline", gap: 8, marginBottom: 4 }}>
+                <span style={{ fontSize: 20, fontWeight: 700 }}>{result.name}</span>
+                <span className="mono" style={{ fontSize: 12, color: C.muted }}>{result.sub}</span>
+                <span className="mono" style={{ fontSize: 13, fontWeight: 700, color: result.chg >= 0 ? C.up : C.down, marginLeft: "auto" }}>
+                  {result.chg >= 0 ? "+" : ""}{result.chg.toFixed(1)}%
+                </span>
               </div>
+              {formattedDate && (
+                <div style={{ fontSize: 11, color: C.muted, marginBottom: 20 }}>{formattedDate}</div>
+              )}
 
-              <div style={{ background: C.panel, border: `1px solid ${C.line}`, borderRadius: 6, padding: 20, marginBottom: 16 }}>
-                <div style={{ display: "flex", alignItems: "baseline", gap: 8, marginBottom: 4 }}>
-                  <span style={{ fontSize: 19, fontWeight: 700 }}>{result.name}</span>
-                  <span className="mono" style={{ fontSize: 12, color: C.muted }}>{result.sub}</span>
-                  <span className="mono" style={{ fontSize: 12, fontWeight: 700, color: result.chg >= 0 ? C.up : C.down, marginLeft: "auto" }}>
-                    {result.chg >= 0 ? "+" : ""}{result.chg.toFixed(1)}%
-                  </span>
+              {/* 시장 점수 - 이 화면의 주인공 */}
+              <div style={{ background: C.panel, border: `1px solid ${C.line}`, borderRadius: 6, padding: 24, marginBottom: 14 }}>
+                <div style={{ fontSize: 13, color: C.muted, marginBottom: 6 }}>시장 신호</div>
+                <div style={{ display: "flex", alignItems: "baseline", gap: 10, marginBottom: 4 }}>
+                  <span className="mono" style={{ fontSize: 44, fontWeight: 700, lineHeight: 1 }}>{result.marketScore}</span>
+                  <span className="mono" style={{ fontSize: 16, color: C.muted }}>/ 100</span>
                 </div>
-                <div style={{ fontSize: 13, color: C.muted, marginBottom: 18 }}>
+                <div style={{ fontSize: 14, marginBottom: 4 }}>
                   현재 상태: <span style={{ fontWeight: 700, color: status.color }}>{status.label}</span>
                 </div>
+                <div style={{ fontSize: 12, color: C.muted, marginBottom: 20, lineHeight: 1.5 }}>
+                  같은 시점 전체 종목 중 상대적 위치입니다. 높을수록 거래량·모멘텀·신고가 근접 신호가 강하다는 뜻이며,
+                  좋다·나쁘다를 의미하지 않습니다.
+                </div>
 
-                <div style={{ display: "grid", gap: 10, gridTemplateColumns: "repeat(auto-fit,minmax(120px,1fr))" }}>
-                  {SCORE_ITEMS.map((item) => (
-                    <div key={item.key} style={{ textAlign: "center", background: C.ground, borderRadius: 4, padding: "12px 8px" }}>
-                      <div style={{ fontSize: 12, color: C.muted, marginBottom: 4 }}>{item.label}</div>
-                      <div className="mono" style={{ fontSize: 24, fontWeight: 700, color: item.reasonReady ? C.ink : C.line }}>
-                        {result.scores[item.key] ?? "–"}
-                      </div>
-                    </div>
-                  ))}
+                <div style={{ borderTop: `1px solid ${C.line}`, paddingTop: 16 }}>
+                  <div style={{ fontSize: 13, fontWeight: 700, marginBottom: 10 }}>왜 이런 결과인가?</div>
+                  <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                    {Object.entries(result.factors)
+                      .sort((a, b) => b[1] - a[1])
+                      .map(([k, v]) => (
+                        <div key={k} style={{ display: "flex", justifyContent: "space-between", fontSize: 13 }}>
+                          <span style={{ color: C.muted }}>{FACTOR_LABELS[k]}</span>
+                          <span className="mono" style={{ fontWeight: 600 }}>{v.toFixed(0)}</span>
+                        </div>
+                      ))}
+                  </div>
                 </div>
               </div>
 
-              <div style={{ background: C.panel, border: `1px solid ${C.line}`, borderRadius: 6, padding: 20 }}>
-                <div style={{ fontSize: 14, fontWeight: 700, marginBottom: 12 }}>왜 이런 결과인가?</div>
-                <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-                  {SCORE_ITEMS.map((item) => (
-                    <div key={item.key} style={{ display: "flex", gap: 8, fontSize: 13, lineHeight: 1.5 }}>
-                      <span style={{ fontWeight: 700, minWidth: 40 }}>{item.label}:</span>
-                      {item.key === "market" ? (
-                        <span style={{ color: C.muted }}>
-                          {Object.entries(result.factors)
-                            .sort((a, b) => b[1] - a[1])
-                            .map(([k, v]) => `${FACTOR_LABELS[k]} ${v.toFixed(0)}점`)
-                            .join(" · ")}
-                        </span>
-                      ) : (
-                        <span style={{ color: C.muted }}>{item.reasonText}</span>
-                      )}
-                    </div>
-                  ))}
-                </div>
+              {/* 준비 중 항목 - 작게, 하단에 */}
+              <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+                {PENDING_ITEMS.map((item) => (
+                  <div
+                    key={item.key}
+                    style={{
+                      flex: "1 1 100px", textAlign: "center", padding: "10px 8px",
+                      border: `1px dashed ${C.line}`, borderRadius: 4, fontSize: 12, color: C.muted,
+                    }}
+                  >
+                    {item.label} · 준비 중
+                  </div>
+                ))}
               </div>
             </div>
           </section>
@@ -200,8 +220,8 @@ export default function Diagnose() {
 
         <footer style={{ borderTop: `1px solid ${C.line}` }}>
           <div className="wrap" style={{ padding: "20px 18px 48px", fontSize: 11, color: C.muted, lineHeight: 1.7 }}>
-            이 화면은 개발 중입니다. "시장" 점수는 거래량·모멘텀·신고가·변동성·자금유입 5개 팩터의 평균이며,
-            기업·테마·이벤트 점수는 아직 연결되지 않았습니다.
+            시장 신호는 거래량·모멘텀·신고가 근접·변동성·거래대금 흐름 5개 지표를 종합한 점수이며,
+            기업·테마·이벤트 분석은 준비 중입니다.
             매수·매도를 추천하지 않으며, 투자 판단과 그 결과에 대한 책임은 이용자 본인에게 있습니다.
           </div>
         </footer>
