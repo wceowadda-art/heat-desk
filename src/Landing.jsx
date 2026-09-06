@@ -42,7 +42,7 @@ const LOCKED = [
   { t: "발열 알림", d: "내 가중치 기준 상위권에 새로 진입한 종목을 장 마감 후 메일로." },
 ];
 
-const ROW_H = 82;
+const ROW_H = 92;
 const HORIZONS = [
   { k: "r1", label: "다음날" },
   { k: "r5", label: "1주 뒤" },
@@ -52,6 +52,10 @@ const HORIZONS = [
 
 const pct = (v) => (v === null || v === undefined ? "–" : `${v >= 0 ? "+" : ""}${v.toFixed(1)}%`);
 const tone = (v) => (v === null || v === undefined ? C.muted : v >= 0 ? C.up : C.down);
+
+function goDiagnose(name) {
+  window.location.href = `/?page=diagnose&stock=${encodeURIComponent(name)}`;
+}
 
 export default function Landing() {
   const [w, setW] = useState(PRESETS["균형"]);
@@ -138,12 +142,15 @@ export default function Landing() {
         .fader::-moz-range-thumb { width:12px; height:22px; background:var(--fc); border-radius:2px; border:none; cursor:pointer; }
         .pre { cursor:pointer; font-family:inherit; font-size:12px; font-weight:600; padding:7px 11px; border-radius:2px; border:1px solid ${C.line}; background:transparent; color:${C.ink}; }
         .cta { cursor:pointer; border:none; border-radius:3px; padding:14px 26px; font-size:15px; font-weight:600; font-family:inherit; background:${C.ink}; color:#fff; }
+        .cta-outline { cursor:pointer; border-radius:3px; padding:14px 26px; font-size:15px; font-weight:600; font-family:inherit; background:transparent; color:${C.ink}; border:1px solid ${C.ink}; }
         .wrap { max-width:1060px; margin:0 auto; padding:0 18px; }
         .htable { width:100%; border-collapse:collapse; font-size:13px; }
         .htable th { text-align:right; font-weight:600; font-size:11px; color:${C.muted}; padding:7px 8px; border-bottom:1px solid ${C.line}; }
         .htable th:first-child { text-align:left; }
         .htable td { padding:9px 8px; border-bottom:1px solid #F0F2F6; text-align:right; }
         .hscroll { overflow-x:auto; }
+        .rowcard { cursor: pointer; }
+        .rowcard:hover { border-color: ${C.ink} !important; }
       `}</style>
 
       <div className="hd">
@@ -153,7 +160,14 @@ export default function Landing() {
           <p style={{ fontSize: "clamp(16px,2.4vw,20px)", lineHeight: 1.55, maxWidth: 560, marginTop: 20, marginBottom: 24 }}>
             남이 찍어주는 종목 말고, <strong>내 기준으로 거르는 종목.</strong><br/>다섯 개 페이더를 굴려서 나만의 발열 랭킹을 만드세요.
           </p>
-          <button className="cta" onClick={() => formRef.current?.scrollIntoView({ behavior: "smooth" })}>오픈 알림 받기 →</button>
+          <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
+            <button className="cta" onClick={() => formRef.current?.scrollIntoView({ behavior: reduce ? "auto" : "smooth" })}>
+              오픈 알림 받기 →
+            </button>
+            <button className="cta-outline" onClick={() => window.location.href = "/?page=diagnose"}>
+              내 종목 직접 검색 →
+            </button>
+          </div>
           <div style={{ fontSize: 12, color: C.muted, marginTop: 12 }}>무료 · 이메일만 남기면 됩니다</div>
         </section>
 
@@ -186,15 +200,19 @@ export default function Landing() {
 
             <div>
               <div style={{ position: "relative", height: rows.length * ROW_H }}>
-               {rows.map(d => (
-                  <div key={d.id} onClick={() => window.location.href = `/?page=diagnose&stock=${encodeURIComponent(d.name)}`} style={{
-                    position: "absolute", left: 0, right: 0, height: ROW_H - 6,
-                    transform: `translateY(${d.rank * ROW_H}px)`,
-                    transition: "transform 480ms cubic-bezier(.2,.85,.25,1)",
-                    background: C.panel, border: `1px solid ${C.line}`, borderRadius: 4, padding: "11px 13px",
-                    display: "flex", flexDirection: "column", justifyContent: "space-between",
-                    cursor: "pointer",
-                  }}>
+                {rows.map(d => (
+                  <div
+                    key={d.id}
+                    className="rowcard"
+                    onClick={() => goDiagnose(d.name)}
+                    style={{
+                      position: "absolute", left: 0, right: 0, height: ROW_H - 6,
+                      transform: `translateY(${d.rank * ROW_H}px)`,
+                      transition: "transform 480ms cubic-bezier(.2,.85,.25,1)",
+                      background: C.panel, border: `1px solid ${C.line}`, borderRadius: 4, padding: "11px 13px",
+                      display: "flex", flexDirection: "column", justifyContent: "space-between",
+                    }}
+                  >
                     <div style={{ display: "flex", alignItems: "baseline", gap: 10 }}>
                       <span className="mono" style={{ fontSize: 12, color: C.muted, width: 20 }}>{String(d.rank + 1).padStart(2, "0")}</span>
                       <span style={{ fontSize: 15, fontWeight: 600 }}>{d.name}</span>
@@ -205,6 +223,7 @@ export default function Landing() {
                     <div style={{ display: "flex", height: 9, background: "#F0F2F6", borderRadius: 1 }}>
                       {d.parts.map(p => (<div key={p.id} style={{ width: `${p.value}%`, background: p.color }}/>))}
                     </div>
+                    <div style={{ fontSize: 10, color: C.muted, textAlign: "right" }}>종목 상태 보기 →</div>
                   </div>
                 ))}
               </div>
@@ -229,7 +248,11 @@ export default function Landing() {
                 <thead><tr><th>순위</th><th>종목</th><th>점수</th></tr></thead>
                 <tbody>
                   {rows.sort((a, b) => (b.f[factorFilter] ?? 0) - (a.f[factorFilter] ?? 0)).slice(0, 10).map((d, i) => (
-                    <tr key={d.id}><td className="mono" style={{ color: C.muted }}>{String(i + 1).padStart(2, "0")}</td><td style={{ fontWeight: 600 }}>{d.name}</td><td className="mono" style={{ fontWeight: 700 }}>{(d.f[factorFilter] ?? 0).toFixed(1)}</td></tr>
+                    <tr key={d.id} onClick={() => goDiagnose(d.name)} style={{ cursor: "pointer" }}>
+                      <td className="mono" style={{ color: C.muted }}>{String(i + 1).padStart(2, "0")}</td>
+                      <td style={{ fontWeight: 600 }}>{d.name}</td>
+                      <td className="mono" style={{ fontWeight: 700 }}>{(d.f[factorFilter] ?? 0).toFixed(1)}</td>
+                    </tr>
                   ))}
                 </tbody>
               </table>
@@ -264,7 +287,11 @@ export default function Landing() {
                 <thead><tr><th>순위</th><th>종목</th><th>점수</th></tr></thead>
                 <tbody>
                   {(capData[capTab] || []).slice(0, 10).map((d, i) => (
-                    <tr key={d.id}><td className="mono" style={{ color: C.muted }}>{String(i + 1).padStart(2, "0")}</td><td style={{ fontWeight: 600 }}>{d.name}</td><td className="mono" style={{ fontWeight: 700 }}>{d.score?.toFixed(1) || "–"}</td></tr>
+                    <tr key={d.id} onClick={() => goDiagnose(d.name)} style={{ cursor: "pointer" }}>
+                      <td className="mono" style={{ color: C.muted }}>{String(i + 1).padStart(2, "0")}</td>
+                      <td style={{ fontWeight: 600 }}>{d.name}</td>
+                      <td className="mono" style={{ fontWeight: 700 }}>{d.score?.toFixed(1) || "–"}</td>
+                    </tr>
                   ))}
                 </tbody>
               </table>
@@ -312,7 +339,11 @@ export default function Landing() {
                   <thead><tr><th>종목</th><th>당일</th>{HORIZONS.map(({ k, label }) => <th key={k}>{label}</th>)}</tr></thead>
                   <tbody>
                     {(hist[histTab]?.[day] || hist[day] || []).map((it, i) => (
-                      <tr key={it.id}><td><span className="mono" style={{ color: C.muted, marginRight: 8 }}>{String(i + 1).padStart(2, "0")}</span><span style={{ fontWeight: 600 }}>{it.name}</span></td><td className="mono" style={{ color: tone(it.chg) }}>{pct(it.chg)}</td>{HORIZONS.map(({ k }) => <td key={k} className="mono" style={{ color: tone(it[k]) }}>{pct(it[k])}</td>)}</tr>
+                      <tr key={it.id} onClick={() => goDiagnose(it.name)} style={{ cursor: "pointer" }}>
+                        <td><span className="mono" style={{ color: C.muted, marginRight: 8 }}>{String(i + 1).padStart(2, "0")}</span><span style={{ fontWeight: 600 }}>{it.name}</span></td>
+                        <td className="mono" style={{ color: tone(it.chg) }}>{pct(it.chg)}</td>
+                        {HORIZONS.map(({ k }) => <td key={k} className="mono" style={{ color: tone(it[k]) }}>{pct(it[k])}</td>)}
+                      </tr>
                     ))}
                   </tbody>
                 </table>
