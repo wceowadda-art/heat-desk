@@ -167,6 +167,9 @@ export default function Landing() {
             <button className="cta-outline" onClick={() => window.location.href = "/?page=diagnose"}>
               내 종목 직접 검색 →
             </button>
+            <button className="cta-outline" onClick={() => window.location.href = "/?page=screener"}>
+              내 기준으로 종목 찾기 →
+            </button>
           </div>
           <div style={{ fontSize: 12, color: C.muted, marginTop: 12 }}>무료 · 이메일만 남기면 됩니다</div>
         </section>
