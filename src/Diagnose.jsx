@@ -67,6 +67,8 @@ export default function Diagnose() {
     const trimmed = (name || "").trim();
     if (!trimmed) return;
 
+    if (window.gtag) window.gtag("event", "diagnose_search", { stock_name: trimmed });
+
     setStatus("analyzing");
     setShowSuggest(false);
 
