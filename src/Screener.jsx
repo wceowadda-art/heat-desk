@@ -90,7 +90,10 @@ export default function Screener() {
             {PRESETS.map((p) => (
               <button
                 key={p.key}
-                onClick={() => setSelected(p.key)}
+                onClick={() => {
+                  setSelected(p.key);
+                  if (window.gtag) window.gtag("event", "screener_preset_click", { preset: p.key });
+                }}
                 style={{
                   cursor: "pointer", textAlign: "left", fontFamily: "inherit",
                   padding: "16px 18px", borderRadius: 6,
