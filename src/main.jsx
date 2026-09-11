@@ -1,14 +1,43 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import ReactDOM from 'react-dom/client'
 import Landing from './Landing.jsx'
 import Diagnose from './Diagnose.jsx'
 import Screener from './Screener.jsx'
 
+const GA_MEASUREMENT_ID = 'G-J4TJTDJHG2'
+
+function initGA() {
+  if (window.gtag) return // 이미 초기화됐으면 중복 방지
+
+  const script = document.createElement('script')
+  script.async = true
+  script.src = `https://www.googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID}`
+  document.head.appendChild(script)
+
+  window.dataLayer = window.dataLayer || []
+  function gtag() { window.dataLayer.push(arguments) }
+  window.gtag = gtag
+  gtag('js', new Date())
+  gtag('config', GA_MEASUREMENT_ID)
+}
+
 function App() {
-  // URL 쿼리스트링(?page=diagnose 또는 ?page=screener)으로 화면을 전환한다.
-  // 나중에 정식 라우터(react-router-dom)를 넣으면 이 부분만 바꾸면 된다.
   const params = new URLSearchParams(window.location.search)
   const [page] = useState(params.get('page') || 'home')
+
+  useEffect(() => {
+    initGA()
+  }, [])
+
+  useEffect(() => {
+    // 페이지 전환(홈/진단/스크리너)마다 페이지뷰를 별도로 기록한다.
+    if (window.gtag) {
+      window.gtag('event', 'page_view', {
+        page_title: page,
+        page_path: `/?page=${page}`,
+      })
+    }
+  }, [page])
 
   if (page === 'diagnose') return <Diagnose />
   if (page === 'screener') return <Screener />
