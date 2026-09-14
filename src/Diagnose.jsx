@@ -11,7 +11,6 @@ const C = {
   warn: "#D9B434",
 };
 
-// "자금 유입" -> "거래대금 흐름"으로 정정 (실제 수급 데이터가 아니라 OHLCV 기반 계산이므로).
 const FACTOR_LABELS = {
   vol: "거래량 급증",
   mom: "모멘텀",
@@ -21,7 +20,6 @@ const FACTOR_LABELS = {
 };
 
 const PENDING_ITEMS = [
-  { key: "company", label: "기업" },
   { key: "theme", label: "테마" },
   { key: "event", label: "이벤트" },
 ];
@@ -39,7 +37,7 @@ export default function Diagnose() {
   const [updatedAt, setUpdatedAt] = useState(null);
   const [loadingData, setLoadingData] = useState(true);
   const [result, setResult] = useState(null);
-  const [status, setStatus] = useState("idle"); // idle | analyzing | found | notfound
+  const [status, setStatus] = useState("idle");
   const [showSuggest, setShowSuggest] = useState(false);
 
   useEffect(() => {
@@ -51,7 +49,6 @@ export default function Diagnose() {
         setUpdatedAt(j?.updated || null);
         setLoadingData(false);
 
-        // 랭킹에서 넘어온 경우: ?stock=종목명 으로 자동 분석
         const params = new URLSearchParams(window.location.search);
         const stockParam = params.get("stock");
         if (stockParam) {
@@ -72,7 +69,6 @@ export default function Diagnose() {
     setStatus("analyzing");
     setShowSuggest(false);
 
-    // 실제 계산은 즉시 끝나지만, "분석 중" 상태를 잠깐 보여줘 흐름을 명확히 한다.
     setTimeout(() => {
       const found = list.find((s) => s.name === trimmed);
       if (!found) {
@@ -90,6 +86,7 @@ export default function Diagnose() {
         chg: found.chg,
         factors: found.f,
         marketScore,
+        companyScore: found.company ?? null,
       });
       setStatus("found");
     }, 300);
@@ -139,7 +136,7 @@ export default function Diagnose() {
             내 종목의 시장 신호를 확인하세요
           </h1>
           <p style={{ fontSize: 14, color: C.muted, margin: 0 }}>
-            가격·거래량 흐름을 바탕으로 현재 상태를 보여드립니다.
+            가격·거래량 흐름과 재무 체력을 바탕으로 현재 상태를 보여드립니다.
           </p>
         </section>
 
@@ -204,7 +201,6 @@ export default function Diagnose() {
           )}
         </section>
 
-        {/* 예외 상태: 입력 전 */}
         {status === "idle" && !loadingData && (
           <section className="wrap" style={{ paddingTop: 24, paddingBottom: 48 }}>
             <div style={{ fontSize: 13, color: C.muted, textAlign: "center", padding: "24px 0" }}>
@@ -213,7 +209,6 @@ export default function Diagnose() {
           </section>
         )}
 
-        {/* 예외 상태: 분석 중 */}
         {status === "analyzing" && (
           <section className="wrap" style={{ paddingTop: 24, paddingBottom: 48 }}>
             <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 10, padding: "24px 0", color: C.muted, fontSize: 13 }}>
@@ -226,7 +221,6 @@ export default function Diagnose() {
           </section>
         )}
 
-        {/* 예외 상태: 종목 없음 */}
         {status === "notfound" && (
           <section className="wrap" style={{ paddingBottom: 48 }}>
             <div style={{ background: C.panel, border: `1px solid ${C.line}`, borderRadius: 6, padding: 20, fontSize: 14, color: C.muted }}>
@@ -235,7 +229,6 @@ export default function Diagnose() {
           </section>
         )}
 
-        {/* 결과 화면 */}
         {status === "found" && result && (
           <section className="wrap" style={{ paddingBottom: 48 }}>
             <div style={{ borderTop: `1px solid ${C.line}`, paddingTop: 24 }}>
@@ -279,6 +272,26 @@ export default function Diagnose() {
                 </div>
               </div>
 
+              <div style={{ background: C.panel, border: `1px solid ${C.line}`, borderRadius: 6, padding: 24, marginBottom: 14 }}>
+                <div style={{ fontSize: 13, color: C.muted, marginBottom: 6 }}>기업 체력</div>
+                {result.companyScore !== null ? (
+                  <>
+                    <div style={{ display: "flex", alignItems: "baseline", gap: 10, marginBottom: 4 }}>
+                      <span className="mono" style={{ fontSize: 44, fontWeight: 700, lineHeight: 1 }}>{result.companyScore}</span>
+                      <span className="mono" style={{ fontSize: 16, color: C.muted }}>/ 100</span>
+                    </div>
+                    <div style={{ fontSize: 12, color: C.muted, lineHeight: 1.5 }}>
+                      같은 업종 안에서의 상대 순위입니다. 영업이익률과 매출 규모, 부채비율 등을 반영했습니다.
+                      아직 초기 버전이라 지표를 계속 보강하고 있습니다.
+                    </div>
+                  </>
+                ) : (
+                  <div style={{ fontSize: 13, color: C.muted, padding: "8px 0" }}>
+                    이 종목은 재무 데이터가 아직 확인되지 않았습니다.
+                  </div>
+                )}
+              </div>
+
               <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
                 {PENDING_ITEMS.map((item) => (
                   <div
@@ -299,7 +312,7 @@ export default function Diagnose() {
         <footer style={{ borderTop: `1px solid ${C.line}` }}>
           <div className="wrap" style={{ padding: "20px 18px 48px", fontSize: 11, color: C.muted, lineHeight: 1.7 }}>
             시장 신호는 거래량·모멘텀·신고가 근접·변동성·거래대금 흐름 5개 지표를 종합한 점수이며,
-            기업·테마·이벤트 분석은 준비 중입니다.
+            기업 체력은 같은 업종 내 재무 지표 상대비교입니다. 테마·이벤트 분석은 준비 중입니다.
             매수·매도를 추천하지 않으며, 투자 판단과 그 결과에 대한 책임은 이용자 본인에게 있습니다.
           </div>
         </footer>
