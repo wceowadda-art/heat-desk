@@ -2,6 +2,7 @@ import json, pandas as pd
 import config as cf
 import datetime
 import math
+import os
 
 FACTORS = ["vol", "mom", "high", "vola", "flow"]
 
@@ -28,6 +29,12 @@ def clean_nan(obj):
     if isinstance(obj, float) and math.isnan(obj):
         return None
     return obj
+
+def load_company_scores():
+    if not os.path.exists("corp_score.csv"):
+        return {}
+    df = pd.read_csv("corp_score.csv", dtype={"code": str})
+    return dict(zip(df["code"], df["company_score"]))
 
 def build(path, col, sub, top, min_value=0):
     raw = pd.read_csv(path, dtype={"code": str})
@@ -73,33 +80,37 @@ if __name__ == "__main__":
                            {"close": "종가", "high": "고가", "low": "저가", "vol": "거래량"},
                            "국내", 1500, 0)
 
-    # config.py의 TOP_COIN 값을 그대로 신뢰하되, 실제 반영값을 화면에 출력해서 확인
-    print(f"[확인] config.TOP_COIN = {cf.TOP_COIN}")
+    company_scores = load_company_scores()
+    print(f"기업 체력 점수 로드: {len(company_scores)}개")
 
     coin_list, _ = build("raw_coin.csv",
                  {"close": "trade_price", "high": "high_price",
                   "low": "low_price", "vol": "candle_acc_trade_volume"},
                  "업비트", cf.TOP_COIN)
-    # TOP_COIN이 0이면 강제로 코인 리스트를 비움 (이중 안전장치)
-    if cf.TOP_COIN == 0:
-        coin_list = []
 
-    # 시총 기준 정렬 (구간을 나누기 위한 정렬)
     kr_df_by_cap = kr_df.sort_values("value", ascending=False).reset_index(drop=True)
     top_kr = kr_list[:cf.TOP_KR]
 
-    def to_json_sorted_by_score(df_subset):
-        # 구간 안에서 total(팩터 종합 점수) 기준으로 다시 정렬
-        df_subset = df_subset.sort_values("total", ascending=False)
-        return [{
-            "id": r["id"], "name": r["name"], "sub": "국내", "chg": float(r["chg"]),
-            "f": {k: float(r[k + "_s"]) for k in FACTORS},
-        } for _, r in df_subset.iterrows()]
+    def attach_company(item, code):
+        comp_score = company_scores.get(code)
+        if comp_score is not None and not (isinstance(comp_score, float) and math.isnan(comp_score)):
+            item["company"] = round(float(comp_score), 1)
+        return item
 
-    # 전체(all)는 종합 점수 기준 정렬
+    def to_json_sorted_by_score(df_subset):
+        df_subset = df_subset.sort_values("total", ascending=False)
+        result = []
+        for _, r in df_subset.iterrows():
+            item = {
+                "id": r["id"], "name": r["name"], "sub": "국내", "chg": float(r["chg"]),
+                "f": {k: float(r[k + "_s"]) for k in FACTORS},
+            }
+            item = attach_company(item, r["id"])
+            result.append(item)
+        return result
+
     all_stocks = to_json_sorted_by_score(kr_df_by_cap)
 
-    # 대형주/중형주/소형주는 "시총 구간으로 자른 뒤", 그 구간 안에서 점수순 재정렬
     large_df = kr_df_by_cap.iloc[:500]
     mid_df = kr_df_by_cap.iloc[500:1000]
     small_df = kr_df_by_cap.iloc[1000:2000]
@@ -108,6 +119,7 @@ if __name__ == "__main__":
     mid = to_json_sorted_by_score(mid_df)
     small = to_json_sorted_by_score(small_df)
 
+    top_kr = [attach_company(item, item["id"]) for item in top_kr]
     merged = top_kr + coin_list
 
     output = {
@@ -138,9 +150,9 @@ if __name__ == "__main__":
 
         hist["all"][today_str] = today_items
 
-        large_ids = set(large_df["id"])
-        mid_ids = set(mid_df["id"])
-        small_ids = set(small_df["id"])
+        large_ids = set(kr_df_by_cap.iloc[:500]["id"])
+        mid_ids = set(kr_df_by_cap.iloc[500:1000]["id"])
+        small_ids = set(kr_df_by_cap.iloc[1000:2000]["id"])
 
         hist["large"][today_str] = [x for x in today_items if x["id"] in large_ids]
         hist["mid"][today_str] = [x for x in today_items if x["id"] in mid_ids]
@@ -150,6 +162,6 @@ if __name__ == "__main__":
     with open("../public/history.json", "w", encoding="utf-8") as f:
         json.dump(hist, f, ensure_ascii=False, indent=2)
 
-    print(f"✓ heat_kr.json: all={len(all_stocks)}, large={len(large)}, mid={len(mid)}, small={len(small)}")
-    print(f"✓ items(상위+코인) 개수: {len(merged)} (코인 {len(coin_list)}개 포함)")
+    with_company = sum(1 for x in all_stocks if "company" in x)
+    print(f"✓ heat_kr.json: all={len(all_stocks)} (기업점수 있음={with_company}), large={len(large)}, mid={len(mid)}, small={len(small)}")
     print(f"✓ history.json updated")
