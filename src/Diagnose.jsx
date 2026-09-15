@@ -91,7 +91,7 @@ export default function Diagnose() {
     setShowSuggest(false);
 
     setTimeout(() => {
-      const found = list.find((s) => s.name === trimmed);
+      const found = list.find((s) => s.name.toLowerCase() === trimmed.toLowerCase());
       if (!found) {
         setResult(null);
         setStatus("notfound");
@@ -123,7 +123,7 @@ export default function Diagnose() {
   const suggestions = useMemo(() => {
     const q = query.trim();
     if (!q || status === "found") return [];
-    return allStocks.filter((s) => s.name.includes(q)).slice(0, 6);
+    return allStocks.filter((s) => s.name.toLowerCase().includes(q.toLowerCase())).slice(0, 6);
   }, [query, allStocks, status]);
 
   const statusInfo = result ? statusFromMarketScore(result.marketScore) : null;
