@@ -19,16 +19,37 @@ const FACTOR_LABELS = {
   flow: "거래대금 흐름",
 };
 
-const PENDING_ITEMS = [
-  { key: "theme", label: "테마" },
-  { key: "event", label: "이벤트" },
-];
+const DISCLOSURE_INFO = {
+  "유상증자결정": "회사가 새 주식을 발행해 자금을 조달하는 결정입니다. 사업 확장 목적일 수도, 재무구조 개선 목적일 수도 있습니다. 기존 주주 입장에서는 지분율이 낮아질 수 있어, 통상 단기적으로 주가에 부담 요인으로 작용하는 경우가 많습니다.",
+  "전환사채권발행결정": "일정 조건에서 주식으로 바꿀 수 있는 채권을 발행하는 결정입니다. 회사가 자금을 조달하는 방법 중 하나이며, 향후 주식 전환이 이뤄지면 유상증자와 비슷하게 지분 희석 요인이 될 수 있습니다.",
+  "회사합병결정": "다른 회사와 합쳐지는 결정입니다. 사업 시너지나 구조조정 목적일 수 있으며, 합병 비율과 목적에 따라 시장 반응이 크게 갈리는 경우가 많습니다.",
+  "자기주식취득결정": "회사가 자기 회사 주식을 사들이는 결정입니다. 통상 주가 안정이나 주주가치 제고 목적으로 해석되며, 시장에서는 비교적 긍정적으로 받아들여지는 경우가 많습니다.",
+  "자기주식취득신탁계약체결결정": "회사가 자기 회사 주식을 사들이는 결정입니다. 통상 주가 안정이나 주주가치 제고 목적으로 해석되며, 시장에서는 비교적 긍정적으로 받아들여지는 경우가 많습니다.",
+  "자기주식처분결정": "회사가 보유하던 자기주식을 파는 결정입니다. 임직원 상여, 자금 조달 등 다양한 목적이 있을 수 있으며, 목적에 따라 시장 반응이 다릅니다.",
+  "자기주식취득신탁계약해지결정": "회사가 자기주식 매입 계약을 종료하는 결정입니다. 임직원 상여, 자금 조달 등 다양한 목적이 있을 수 있으며, 목적에 따라 시장 반응이 다릅니다.",
+  "타법인주식및출자증권양수결정": "다른 회사의 지분을 사들이는 결정입니다. 사업 확장이나 구조조정의 일환일 수 있습니다.",
+  "타법인주식및출자증권양도결정": "다른 회사의 지분을 파는 결정입니다. 사업 확장이나 구조조정의 일환일 수 있습니다.",
+  "자기전환사채만기전취득결정": "회사가 만기 전에 자기 전환사채를 다시 사들이는 결정입니다. 통상 잠재적 지분 희석 요인을 미리 줄이는 조치로 해석되는 경우가 많습니다.",
+  "유형자산양수결정": "회사가 토지, 건물, 설비 같은 유형자산을 사들이는 결정입니다. 통상 사업 확장이나 생산능력 확대 목적으로 해석되는 경우가 많습니다.",
+  "유형자산양도결정": "회사가 보유하던 유형자산을 파는 결정입니다. 자금 조달이나 사업 구조조정의 일환일 수 있습니다.",
+  "상각형조건부자본증권발행결정": "특정 조건(예: 재무 위기)이 발생하면 상각(감액)될 수 있는 조건부 채권을 발행하는 결정입니다. 주로 금융회사가 자본 확충 목적으로 활용합니다.",
+  "영업정지": "회사의 영업 일부 또는 전부가 정지된 결정입니다. 통상 부정적인 신호로 해석되는 경우가 많습니다.",
+};
+
+const PENDING_ITEMS = [{ key: "theme", label: "테마" }];
 
 function statusFromMarketScore(score) {
   if (score === null || score === undefined) return { label: "데이터 없음", color: C.muted };
   if (score >= 70) return { label: "과열 주의", color: C.up };
   if (score >= 40) return { label: "관찰 필요", color: C.warn };
   return { label: "잠잠함", color: C.down };
+}
+
+function formatDate(yyyymmdd) {
+  if (!yyyymmdd) return "";
+  const s = String(yyyymmdd);
+  if (s.length !== 8) return s;
+  return `${s.slice(0, 4)}.${s.slice(4, 6)}.${s.slice(6, 8)}`;
 }
 
 export default function Diagnose() {
@@ -87,6 +108,7 @@ export default function Diagnose() {
         factors: found.f,
         marketScore,
         companyScore: found.company ?? null,
+        event: found.event ?? null,
       });
       setStatus("found");
     }, 300);
@@ -136,7 +158,7 @@ export default function Diagnose() {
             내 종목의 시장 신호를 확인하세요
           </h1>
           <p style={{ fontSize: 14, color: C.muted, margin: 0 }}>
-            가격·거래량 흐름과 재무 체력을 바탕으로 현재 상태를 보여드립니다.
+            가격·거래량 흐름, 재무 체력, 최근 공시를 바탕으로 현재 상태를 보여드립니다.
           </p>
         </section>
 
@@ -292,6 +314,40 @@ export default function Diagnose() {
                 )}
               </div>
 
+              <div style={{ background: C.panel, border: `1px solid ${C.line}`, borderRadius: 6, padding: 24, marginBottom: 14 }}>
+                <div style={{ fontSize: 13, color: C.muted, marginBottom: 6 }}>최근 공시</div>
+                {result.event && result.event.has ? (
+                  <>
+                    <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10, flexWrap: "wrap" }}>
+                      <span style={{
+                        fontSize: 11, fontWeight: 700, padding: "3px 8px", borderRadius: 3,
+                        background: "#FCEAEA", color: C.up,
+                      }}>
+                        있음
+                      </span>
+                      <span className="mono" style={{ fontSize: 12, color: C.muted }}>
+                        {formatDate(result.event.date)}
+                      </span>
+                      <span style={{ fontSize: 14, fontWeight: 700 }}>{result.event.type}</span>
+                    </div>
+                    {DISCLOSURE_INFO[result.event.type] && (
+                      <div style={{ fontSize: 12, color: C.muted, lineHeight: 1.6, marginBottom: 8 }}>
+                        {DISCLOSURE_INFO[result.event.type]}
+                      </div>
+                    )}
+                    {result.event.count > 1 && (
+                      <div style={{ fontSize: 11, color: C.muted }}>
+                        최근 60일간 총 {result.event.count}건의 주요 공시가 있었습니다: {result.event.types}
+                      </div>
+                    )}
+                  </>
+                ) : (
+                  <div style={{ fontSize: 13, color: C.muted, padding: "8px 0" }}>
+                    최근 60일간 특별한 주요 공시가 확인되지 않았습니다.
+                  </div>
+                )}
+              </div>
+
               <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
                 {PENDING_ITEMS.map((item) => (
                   <div
@@ -312,7 +368,8 @@ export default function Diagnose() {
         <footer style={{ borderTop: `1px solid ${C.line}` }}>
           <div className="wrap" style={{ padding: "20px 18px 48px", fontSize: 11, color: C.muted, lineHeight: 1.7 }}>
             시장 신호는 거래량·모멘텀·신고가 근접·변동성·거래대금 흐름 5개 지표를 종합한 점수이며,
-            기업 체력은 같은 업종 내 재무 지표 상대비교입니다. 테마·이벤트 분석은 준비 중입니다.
+            기업 체력은 같은 업종 내 재무 지표 상대비교, 최근 공시는 DART 주요사항보고 기준입니다. 테마 분석은 준비 중입니다.
+            공시 설명은 일반적인 의미를 안내하는 것으로, 개별 종목의 주가 방향을 예측하지 않습니다.
             매수·매도를 추천하지 않으며, 투자 판단과 그 결과에 대한 책임은 이용자 본인에게 있습니다.
           </div>
         </footer>
