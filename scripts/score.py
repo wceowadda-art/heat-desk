@@ -36,6 +36,22 @@ def load_company_scores():
     df = pd.read_csv("corp_score.csv", dtype={"code": str})
     return dict(zip(df["code"], df["company_score"]))
 
+def load_disclosures():
+    if not os.path.exists("disclosures.csv"):
+        return {}
+    df = pd.read_csv("disclosures.csv", dtype={"code": str})
+    result = {}
+    for _, r in df.iterrows():
+        if bool(r["has_recent_disclosure"]):
+            result[r["code"]] = {
+                "has": True,
+                "date": r["latest_date"],
+                "type": r["latest_type"],
+                "types": r["all_types"],
+                "count": int(r["count"]),
+            }
+    return result
+
 def build(path, col, sub, top, min_value=0):
     raw = pd.read_csv(path, dtype={"code": str})
     rows = []
@@ -81,7 +97,9 @@ if __name__ == "__main__":
                            "국내", 1500, 0)
 
     company_scores = load_company_scores()
+    disclosures = load_disclosures()
     print(f"기업 체력 점수 로드: {len(company_scores)}개")
+    print(f"공시 정보 로드: {len(disclosures)}개")
 
     coin_list, _ = build("raw_coin.csv",
                  {"close": "trade_price", "high": "high_price",
@@ -91,10 +109,20 @@ if __name__ == "__main__":
     kr_df_by_cap = kr_df.sort_values("value", ascending=False).reset_index(drop=True)
     top_kr = kr_list[:cf.TOP_KR]
 
-    def attach_company(item, code):
+    def attach_extra(item, code):
         comp_score = company_scores.get(code)
         if comp_score is not None and not (isinstance(comp_score, float) and math.isnan(comp_score)):
             item["company"] = round(float(comp_score), 1)
+
+        disc = disclosures.get(code)
+        if disc:
+            item["event"] = {
+                "has": True,
+                "date": disc["date"],
+                "type": disc["type"],
+                "types": disc["types"],
+                "count": disc["count"],
+            }
         return item
 
     def to_json_sorted_by_score(df_subset):
@@ -105,7 +133,7 @@ if __name__ == "__main__":
                 "id": r["id"], "name": r["name"], "sub": "국내", "chg": float(r["chg"]),
                 "f": {k: float(r[k + "_s"]) for k in FACTORS},
             }
-            item = attach_company(item, r["id"])
+            item = attach_extra(item, r["id"])
             result.append(item)
         return result
 
@@ -119,7 +147,7 @@ if __name__ == "__main__":
     mid = to_json_sorted_by_score(mid_df)
     small = to_json_sorted_by_score(small_df)
 
-    top_kr = [attach_company(item, item["id"]) for item in top_kr]
+    top_kr = [attach_extra(item, item["id"]) for item in top_kr]
     merged = top_kr + coin_list
 
     output = {
@@ -163,5 +191,6 @@ if __name__ == "__main__":
         json.dump(hist, f, ensure_ascii=False, indent=2)
 
     with_company = sum(1 for x in all_stocks if "company" in x)
-    print(f"✓ heat_kr.json: all={len(all_stocks)} (기업점수 있음={with_company}), large={len(large)}, mid={len(mid)}, small={len(small)}")
+    with_event = sum(1 for x in all_stocks if "event" in x)
+    print(f"✓ heat_kr.json: all={len(all_stocks)} (기업점수={with_company}, 공시있음={with_event}), large={len(large)}, mid={len(mid)}, small={len(small)}")
     print(f"✓ history.json updated")
