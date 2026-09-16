@@ -63,6 +63,20 @@ def load_themes():
             result[r["code"]] = [t.strip() for t in themes_str.split(",")]
     return result
 
+def load_theme_buzz():
+    if not os.path.exists("theme_buzz.csv"):
+        return {}
+    df = pd.read_csv("theme_buzz.csv")
+    result = {}
+    for _, r in df.iterrows():
+        result[r["theme"]] = {
+            "grade": int(r["grade"]),
+            "grade_label": r["grade_label"],
+            "note": r["note"],
+            "checked_date": r["checked_date"],
+        }
+    return result
+
 def build(path, col, sub, top, min_value=0):
     raw = pd.read_csv(path, dtype={"code": str})
     rows = []
@@ -110,9 +124,11 @@ if __name__ == "__main__":
     company_scores = load_company_scores()
     disclosures = load_disclosures()
     themes = load_themes()
+    theme_buzz = load_theme_buzz()
     print(f"기업 체력 점수 로드: {len(company_scores)}개")
     print(f"공시 정보 로드: {len(disclosures)}개")
     print(f"테마 정보 로드: {len(themes)}개")
+    print(f"테마 화제성 로드: {len(theme_buzz)}개 (전체 30개 중)")
 
     coin_list, _ = build("raw_coin.csv",
                  {"close": "trade_price", "high": "high_price",
@@ -140,6 +156,12 @@ if __name__ == "__main__":
         theme_list = themes.get(code)
         if theme_list:
             item["themes"] = theme_list
+            buzz_info = []
+            for t in theme_list:
+                if t in theme_buzz:
+                    buzz_info.append({"theme": t, **theme_buzz[t]})
+            if buzz_info:
+                item["theme_buzz"] = buzz_info
 
         return item
 
@@ -211,5 +233,6 @@ if __name__ == "__main__":
     with_company = sum(1 for x in all_stocks if "company" in x)
     with_event = sum(1 for x in all_stocks if "event" in x)
     with_theme = sum(1 for x in all_stocks if "themes" in x)
-    print(f"✓ heat_kr.json: all={len(all_stocks)} (기업점수={with_company}, 공시있음={with_event}, 테마있음={with_theme})")
+    with_buzz = sum(1 for x in all_stocks if "theme_buzz" in x)
+    print(f"✓ heat_kr.json: all={len(all_stocks)} (기업점수={with_company}, 공시={with_event}, 테마={with_theme}, 화제성={with_buzz})")
     print(f"✓ history.json updated")
