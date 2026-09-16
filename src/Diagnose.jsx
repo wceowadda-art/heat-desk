@@ -108,6 +108,7 @@ export default function Diagnose() {
         companyScore: found.company ?? null,
         event: found.event ?? null,
         themes: found.themes ?? null,
+        themeBuzz: found.theme_buzz ?? null,
       });
       setStatus("found");
     }, 300);
@@ -267,9 +268,24 @@ export default function Diagnose() {
 
               {result.themes && result.themes.length > 0 && (
                 <div style={{ marginBottom: 20 }}>
-                  {result.themes.map((t) => (
-                    <span key={t} className="theme-tag">{t}</span>
-                  ))}
+                  {result.themes.map((t) => {
+                    const buzz = result.themeBuzz?.find((b) => b.theme === t);
+                    return (
+                      <span key={t} className="theme-tag">
+                        {t}
+                        {buzz && <span style={{ marginLeft: 5, fontWeight: 700 }}>· {buzz.grade_label}</span>}
+                      </span>
+                    );
+                  })}
+                  {result.themeBuzz && result.themeBuzz.length > 0 && (
+                    <div style={{ fontSize: 11, color: C.muted, marginTop: 4, lineHeight: 1.5 }}>
+                      {result.themeBuzz.map((b) => (
+                        <div key={b.theme} style={{ marginBottom: 2 }}>
+                          [{b.theme}] {b.note} ({b.checked_date} 확인)
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
               )}
 
