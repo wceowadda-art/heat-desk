@@ -52,6 +52,17 @@ def load_disclosures():
             }
     return result
 
+def load_themes():
+    if not os.path.exists("theme_map.csv"):
+        return {}
+    df = pd.read_csv("theme_map.csv", dtype={"code": str})
+    result = {}
+    for _, r in df.iterrows():
+        themes_str = r.get("themes", "")
+        if isinstance(themes_str, str) and themes_str.strip():
+            result[r["code"]] = [t.strip() for t in themes_str.split(",")]
+    return result
+
 def build(path, col, sub, top, min_value=0):
     raw = pd.read_csv(path, dtype={"code": str})
     rows = []
@@ -98,8 +109,10 @@ if __name__ == "__main__":
 
     company_scores = load_company_scores()
     disclosures = load_disclosures()
+    themes = load_themes()
     print(f"기업 체력 점수 로드: {len(company_scores)}개")
     print(f"공시 정보 로드: {len(disclosures)}개")
+    print(f"테마 정보 로드: {len(themes)}개")
 
     coin_list, _ = build("raw_coin.csv",
                  {"close": "trade_price", "high": "high_price",
@@ -123,6 +136,11 @@ if __name__ == "__main__":
                 "types": disc["types"],
                 "count": disc["count"],
             }
+
+        theme_list = themes.get(code)
+        if theme_list:
+            item["themes"] = theme_list
+
         return item
 
     def to_json_sorted_by_score(df_subset):
@@ -192,5 +210,6 @@ if __name__ == "__main__":
 
     with_company = sum(1 for x in all_stocks if "company" in x)
     with_event = sum(1 for x in all_stocks if "event" in x)
-    print(f"✓ heat_kr.json: all={len(all_stocks)} (기업점수={with_company}, 공시있음={with_event}), large={len(large)}, mid={len(mid)}, small={len(small)}")
+    with_theme = sum(1 for x in all_stocks if "themes" in x)
+    print(f"✓ heat_kr.json: all={len(all_stocks)} (기업점수={with_company}, 공시있음={with_event}, 테마있음={with_theme})")
     print(f"✓ history.json updated")
