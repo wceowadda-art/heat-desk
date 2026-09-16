@@ -267,25 +267,38 @@ export default function Diagnose() {
               )}
 
               {result.themes && result.themes.length > 0 && (
-                <div style={{ marginBottom: 20 }}>
+                <div style={{ background: C.panel, border: `1px solid ${C.line}`, borderRadius: 6, padding: 24, marginBottom: 14 }}>
+                  <div style={{ fontSize: 13, color: C.muted, marginBottom: 12 }}>테마</div>
                   {result.themes.map((t) => {
                     const buzz = result.themeBuzz?.find((b) => b.theme === t);
                     return (
-                      <span key={t} className="theme-tag">
-                        {t}
-                        {buzz && <span style={{ marginLeft: 5, fontWeight: 700 }}>· {buzz.grade_label}</span>}
-                      </span>
+                      <div key={t} style={{ marginBottom: 14 }}>
+                        <div style={{ display: "flex", alignItems: "baseline", gap: 8, marginBottom: 4 }}>
+                          <span style={{ fontSize: 16, fontWeight: 700 }}>{t}</span>
+                          {buzz ? (
+                            <span style={{ fontSize: 13, fontWeight: 700, color: buzz.grade >= 4 ? C.up : buzz.grade === 3 ? C.warn : C.down }}>
+                              화제성 {buzz.grade_label}
+                            </span>
+                          ) : (
+                            <span style={{ fontSize: 12, color: C.muted }}>화제성 체크 예정</span>
+                          )}
+                        </div>
+                        {buzz ? (
+                          <div style={{ fontSize: 12, color: C.muted, lineHeight: 1.6 }}>
+                            {buzz.note} ({buzz.checked_date} 확인)
+                          </div>
+                        ) : (
+                          <div style={{ fontSize: 12, color: C.muted, lineHeight: 1.6 }}>
+                            이 테마는 아직 화제성 조사 전입니다. 순차적으로 채워가고 있습니다.
+                          </div>
+                        )}
+                      </div>
                     );
                   })}
-                  {result.themeBuzz && result.themeBuzz.length > 0 && (
-                    <div style={{ fontSize: 11, color: C.muted, marginTop: 4, lineHeight: 1.5 }}>
-                      {result.themeBuzz.map((b) => (
-                        <div key={b.theme} style={{ marginBottom: 2 }}>
-                          [{b.theme}] {b.note} ({b.checked_date} 확인)
-                        </div>
-                      ))}
-                    </div>
-                  )}
+                  <div style={{ fontSize: 11, color: C.muted, borderTop: `1px solid ${C.line}`, paddingTop: 10, lineHeight: 1.5 }}>
+                    화제성은 최근 뉴스·증권가 리포트에서 이 테마가 얼마나 자주 언급되는지를 나타냅니다.
+                    높다고 좋은 신호는 아니며, 이미 많이 오른 뒤일 수도 있습니다.
+                  </div>
                 </div>
               )}
 
