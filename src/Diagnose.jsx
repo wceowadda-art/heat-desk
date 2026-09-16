@@ -36,8 +36,6 @@ const DISCLOSURE_INFO = {
   "영업정지": "회사의 영업 일부 또는 전부가 정지된 결정입니다. 통상 부정적인 신호로 해석되는 경우가 많습니다.",
 };
 
-const PENDING_ITEMS = [{ key: "theme", label: "테마" }];
-
 function statusFromMarketScore(score) {
   if (score === null || score === undefined) return { label: "데이터 없음", color: C.muted };
   if (score >= 70) return { label: "과열 주의", color: C.up };
@@ -109,6 +107,7 @@ export default function Diagnose() {
         marketScore,
         companyScore: found.company ?? null,
         event: found.event ?? null,
+        themes: found.themes ?? null,
       });
       setStatus("found");
     }, 300);
@@ -150,6 +149,7 @@ export default function Diagnose() {
         .suggest-item:hover { background: ${C.ground}; }
         @keyframes spin { to { transform: rotate(360deg); } }
         .spinner { animation: spin 0.8s linear infinite; }
+        .theme-tag { display: inline-block; font-size: 12px; padding: 4px 10px; border-radius: 999px; background: ${C.ground}; color: ${C.ink}; margin: 0 6px 6px 0; }
       `}</style>
 
       <div className="dg">
@@ -158,7 +158,7 @@ export default function Diagnose() {
             내 종목의 시장 신호를 확인하세요
           </h1>
           <p style={{ fontSize: 14, color: C.muted, margin: 0 }}>
-            가격·거래량 흐름, 재무 체력, 최근 공시를 바탕으로 현재 상태를 보여드립니다.
+            가격·거래량 흐름, 재무 체력, 최근 공시, 관련 테마를 바탕으로 현재 상태를 보여드립니다.
           </p>
         </section>
 
@@ -262,7 +262,15 @@ export default function Diagnose() {
                 </span>
               </div>
               {formattedDate && (
-                <div style={{ fontSize: 11, color: C.muted, marginBottom: 20 }}>{formattedDate}</div>
+                <div style={{ fontSize: 11, color: C.muted, marginBottom: 12 }}>{formattedDate}</div>
+              )}
+
+              {result.themes && result.themes.length > 0 && (
+                <div style={{ marginBottom: 20 }}>
+                  {result.themes.map((t) => (
+                    <span key={t} className="theme-tag">{t}</span>
+                  ))}
+                </div>
               )}
 
               <div style={{ background: C.panel, border: `1px solid ${C.line}`, borderRadius: 6, padding: 24, marginBottom: 14 }}>
@@ -314,7 +322,7 @@ export default function Diagnose() {
                 )}
               </div>
 
-              <div style={{ background: C.panel, border: `1px solid ${C.line}`, borderRadius: 6, padding: 24, marginBottom: 14 }}>
+              <div style={{ background: C.panel, border: `1px solid ${C.line}`, borderRadius: 6, padding: 24 }}>
                 <div style={{ fontSize: 13, color: C.muted, marginBottom: 6 }}>최근 공시</div>
                 {result.event && result.event.has ? (
                   <>
@@ -347,20 +355,6 @@ export default function Diagnose() {
                   </div>
                 )}
               </div>
-
-              <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-                {PENDING_ITEMS.map((item) => (
-                  <div
-                    key={item.key}
-                    style={{
-                      flex: "1 1 100px", textAlign: "center", padding: "10px 8px",
-                      border: `1px dashed ${C.line}`, borderRadius: 4, fontSize: 12, color: C.muted,
-                    }}
-                  >
-                    {item.label} · 준비 중
-                  </div>
-                ))}
-              </div>
             </div>
           </section>
         )}
@@ -368,7 +362,7 @@ export default function Diagnose() {
         <footer style={{ borderTop: `1px solid ${C.line}` }}>
           <div className="wrap" style={{ padding: "20px 18px 48px", fontSize: 11, color: C.muted, lineHeight: 1.7 }}>
             시장 신호는 거래량·모멘텀·신고가 근접·변동성·거래대금 흐름 5개 지표를 종합한 점수이며,
-            기업 체력은 같은 업종 내 재무 지표 상대비교, 최근 공시는 DART 주요사항보고 기준입니다. 테마 분석은 준비 중입니다.
+            기업 체력은 같은 업종 내 재무 지표 상대비교, 최근 공시는 DART 주요사항보고 기준, 테마는 직접 선정한 대표 종목 기준입니다.
             공시 설명은 일반적인 의미를 안내하는 것으로, 개별 종목의 주가 방향을 예측하지 않습니다.
             매수·매도를 추천하지 않으며, 투자 판단과 그 결과에 대한 책임은 이용자 본인에게 있습니다.
           </div>
