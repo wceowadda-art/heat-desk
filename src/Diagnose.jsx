@@ -58,6 +58,30 @@ export default function Diagnose() {
   const [result, setResult] = useState(null);
   const [status, setStatus] = useState("idle");
   const [showSuggest, setShowSuggest] = useState(false);
+  const [avgInput, setAvgInput] = useState("");
+
+  // 종목이 바뀌면, 이 브라우저에 저장해둔 평단가가 있을 때만 불러온다 (서버로 전송하지 않음).
+  useEffect(() => {
+    if (!result) return;
+    try {
+      setAvgInput(localStorage.getItem(`avg:${result.id}`) || "");
+    } catch {
+      setAvgInput("");
+    }
+  }, [result?.id]);
+
+  const handleAvgChange = (v) => {
+    const cleaned = v.replace(/[^0-9.]/g, "");
+    setAvgInput(cleaned);
+    try {
+      if (result) localStorage.setItem(`avg:${result.id}`, cleaned);
+    } catch {}
+    if (cleaned && window.gtag) window.gtag("event", "avg_price_input", { stock_name: result?.name });
+  };
+
+  const avgPrice = parseFloat(avgInput);
+  const returnPct =
+    result?.close && avgPrice > 0 ? (result.close / avgPrice - 1) * 100 : null;
 
   useEffect(() => {
     fetch("/heat_kr.json")
@@ -103,6 +127,7 @@ export default function Diagnose() {
         name: found.name,
         sub: found.sub,
         chg: found.chg,
+        close: found.close ?? null,
         factors: found.f,
         marketScore,
         companyScore: found.company ?? null,
@@ -383,6 +408,50 @@ export default function Diagnose() {
                     최근 60일간 특별한 주요 공시가 확인되지 않았습니다.
                   </div>
                 )}
+              </div>
+
+              {/* 내 평단가 확인 - 수익률 계산만 보여주고, 보유·매도 판단은 하지 않는다 */}
+              <div style={{ background: C.panel, border: `1px solid ${C.line}`, borderRadius: 6, padding: 24, marginTop: 14 }}>
+                <div style={{ fontSize: 13, color: C.muted, marginBottom: 10 }}>내 평단가 확인</div>
+                <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 14 }}>
+                  <input
+                    type="text"
+                    inputMode="decimal"
+                    value={avgInput}
+                    onChange={(e) => handleAvgChange(e.target.value)}
+                    placeholder="내 평단가 입력 (원)"
+                    style={{
+                      flex: 1, fontFamily: "inherit", fontSize: 15, padding: "11px 12px",
+                      borderRadius: 4, border: `1px solid ${C.line}`, background: C.panel, color: C.ink,
+                    }}
+                  />
+                  <span style={{ fontSize: 13, color: C.muted }}>원</span>
+                </div>
+
+                {result.close === null ? (
+                  <div style={{ fontSize: 12, color: C.muted }}>현재가 데이터를 준비 중입니다.</div>
+                ) : returnPct === null ? (
+                  <div style={{ fontSize: 12, color: C.muted }}>
+                    현재가 {result.close.toLocaleString()}원 · 평단가를 입력하면 수익률을 계산해 드려요.
+                  </div>
+                ) : (
+                  <>
+                    <div style={{ display: "flex", alignItems: "baseline", gap: 10, marginBottom: 6 }}>
+                      <span className="mono" style={{ fontSize: 36, fontWeight: 700, lineHeight: 1, color: returnPct >= 0 ? C.up : C.down }}>
+                        {returnPct >= 0 ? "+" : ""}{returnPct.toFixed(1)}%
+                      </span>
+                    </div>
+                    <div className="mono" style={{ fontSize: 12, color: C.muted, marginBottom: 12 }}>
+                      평단가 {avgPrice.toLocaleString()}원 → 현재가 {result.close.toLocaleString()}원
+                    </div>
+                  </>
+                )}
+
+                <div style={{ fontSize: 11, color: C.muted, lineHeight: 1.6, borderTop: `1px solid ${C.line}`, paddingTop: 10 }}>
+                  수익률만 계산해 보여드립니다. 보유·매도 판단은 하지 않습니다.
+                  위의 시장 신호·기업 체력·공시·테마와 함께 참고용으로 봐주세요.
+                  입력한 평단가는 이 기기에만 저장되고 서버로 전송되지 않습니다.
+                </div>
               </div>
             </div>
           </section>
