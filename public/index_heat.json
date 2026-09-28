@@ -1,0 +1,87 @@
+{
+  "updated": "2026-09-29T07:39:47.989115",
+  "indexes": {
+    "kospi": {
+      "name": "코스피",
+      "close": 6889.74,
+      "chg": -2.7,
+      "date": "20260928",
+      "horizons": {
+        "short": {
+          "days": 5,
+          "score": 52.8,
+          "status": "관찰 필요",
+          "factors": {
+            "mom": 50.8,
+            "value": 68.4,
+            "high": 45.2,
+            "vola": 46.8
+          }
+        },
+        "mid": {
+          "days": 20,
+          "score": 15.3,
+          "status": "잠잠함",
+          "factors": {
+            "mom": 24.4,
+            "value": 14.0,
+            "high": 21.6,
+            "vola": 1.2
+          }
+        },
+        "long": {
+          "days": 60,
+          "score": 11.2,
+          "status": "잠잠함",
+          "factors": {
+            "mom": 6.0,
+            "value": 0.4,
+            "high": 15.2,
+            "vola": 23.2
+          }
+        }
+      }
+    },
+    "kosdaq": {
+      "name": "코스닥",
+      "close": 846.58,
+      "chg": 0.25,
+      "date": "20260928",
+      "horizons": {
+        "short": {
+          "days": 5,
+          "score": 64.3,
+          "status": "관찰 필요",
+          "factors": {
+            "mom": 77.6,
+            "value": 67.2,
+            "high": 69.2,
+            "vola": 43.2
+          }
+        },
+        "mid": {
+          "days": 20,
+          "score": 33.6,
+          "status": "잠잠함",
+          "factors": {
+            "mom": 41.6,
+            "value": 55.2,
+            "high": 36.4,
+            "vola": 1.2
+          }
+        },
+        "long": {
+          "days": 60,
+          "score": 19.2,
+          "status": "잠잠함",
+          "factors": {
+            "mom": 31.6,
+            "value": 2.4,
+            "high": 20.4,
+            "vola": 22.4
+          }
+        }
+      }
+    }
+  }
+}
