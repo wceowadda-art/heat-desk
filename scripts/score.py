@@ -171,6 +171,7 @@ if __name__ == "__main__":
         for _, r in df_subset.iterrows():
             item = {
                 "id": r["id"], "name": r["name"], "sub": "국내", "chg": float(r["chg"]),
+                "close": float(r["close"]),
                 "f": {k: float(r[k + "_s"]) for k in FACTORS},
             }
             item = attach_extra(item, r["id"])
