@@ -1,86 +1,96 @@
 {
-  "updated": "2026-09-29T07:39:47.989115",
+  "updated": "2026-09-30T08:41:03.617977",
   "indexes": {
     "kospi": {
       "name": "코스피",
-      "close": 6889.74,
-      "chg": -2.7,
-      "date": "20260928",
+      "close": 6870.81,
+      "chg": -0.27,
+      "date": "20260929",
       "horizons": {
         "short": {
           "days": 5,
-          "score": 52.8,
+          "score": 44.4,
           "status": "관찰 필요",
           "factors": {
-            "mom": 50.8,
-            "value": 68.4,
-            "high": 45.2,
-            "vola": 46.8
+            "mom": 34.8,
+            "value": 46.0,
+            "high": 44.4,
+            "vola": 52.4
           }
         },
         "mid": {
           "days": 20,
-          "score": 15.3,
+          "score": 17.6,
           "status": "잠잠함",
           "factors": {
-            "mom": 24.4,
-            "value": 14.0,
-            "high": 21.6,
-            "vola": 1.2
+            "mom": 30.0,
+            "value": 14.4,
+            "high": 24.4,
+            "vola": 1.6
           }
         },
         "long": {
           "days": 60,
-          "score": 11.2,
+          "score": 11.0,
           "status": "잠잠함",
           "factors": {
-            "mom": 6.0,
+            "mom": 8.8,
             "value": 0.4,
             "high": 15.2,
-            "vola": 23.2
+            "vola": 19.6
           }
         }
+      },
+      "returns": {
+        "short": -0.34,
+        "mid": 1.21,
+        "long": -17.25
       }
     },
     "kosdaq": {
       "name": "코스닥",
-      "close": 846.58,
-      "chg": 0.25,
-      "date": "20260928",
+      "close": 849.8,
+      "chg": 0.38,
+      "date": "20260929",
       "horizons": {
         "short": {
           "days": 5,
-          "score": 64.3,
+          "score": 68.1,
           "status": "관찰 필요",
           "factors": {
-            "mom": 77.6,
+            "mom": 73.6,
             "value": 67.2,
-            "high": 69.2,
-            "vola": 43.2
+            "high": 75.2,
+            "vola": 56.4
           }
         },
         "mid": {
           "days": 20,
-          "score": 33.6,
+          "score": 39.6,
           "status": "잠잠함",
           "factors": {
-            "mom": 41.6,
-            "value": 55.2,
-            "high": 36.4,
-            "vola": 1.2
+            "mom": 42.4,
+            "value": 65.6,
+            "high": 48.8,
+            "vola": 1.6
           }
         },
         "long": {
           "days": 60,
-          "score": 19.2,
+          "score": 18.3,
           "status": "잠잠함",
           "factors": {
-            "mom": 31.6,
-            "value": 2.4,
-            "high": 20.4,
-            "vola": 22.4
+            "mom": 30.0,
+            "value": 0.8,
+            "high": 21.2,
+            "vola": 21.2
           }
         }
+      },
+      "returns": {
+        "short": 2.74,
+        "mid": 1.36,
+        "long": -8.56
       }
     }
   }
