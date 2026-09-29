@@ -134,6 +134,7 @@ export default function Diagnose() {
         event: found.event ?? null,
         themes: found.themes ?? null,
         themeBuzz: found.theme_buzz ?? null,
+        gap: found.gap ?? null,
       });
       setStatus("found");
     }, 300);
@@ -355,6 +356,35 @@ export default function Diagnose() {
                   </div>
                 </div>
               </div>
+
+              {result.gap && (
+                <div style={{ background: C.panel, border: `1px solid ${C.line}`, borderRadius: 6, padding: 24, marginBottom: 14 }}>
+                  <div style={{ fontSize: 13, color: C.muted, marginBottom: 12 }}>코스피 대비</div>
+                  <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 10, marginBottom: 12 }}>
+                    {[
+                      { k: "short", label: "5일" },
+                      { k: "mid", label: "20일" },
+                      { k: "long", label: "60일" },
+                    ].map(({ k, label }) => {
+                      const v = result.gap[k];
+                      if (v === undefined) return <div key={k} />;
+                      const col = v > 0 ? C.up : v < 0 ? C.down : C.muted;
+                      return (
+                        <div key={k}>
+                          <div style={{ fontSize: 11, color: C.muted, marginBottom: 4 }}>{label}</div>
+                          <div className="mono" style={{ fontSize: 20, fontWeight: 700, color: col }}>
+                            {v > 0 ? "+" : ""}{v.toFixed(1)}%p
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                  <div style={{ fontSize: 12, color: C.muted, lineHeight: 1.5 }}>
+                    같은 기간 코스피 수익률과 비교한 초과 수익률입니다. 양수면 지수보다 더 올랐다(또는 덜 떨어졌다)는 뜻이며,
+                    앞으로도 그럴 것이라는 의미는 아닙니다.
+                  </div>
+                </div>
+              )}
 
               <div style={{ background: C.panel, border: `1px solid ${C.line}`, borderRadius: 6, padding: 24, marginBottom: 14 }}>
                 <div style={{ fontSize: 13, color: C.muted, marginBottom: 6 }}>기업 체력</div>

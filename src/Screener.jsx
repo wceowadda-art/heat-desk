@@ -39,8 +39,10 @@ const GROUPS = [
 const CATALOG = [
   // 재무
   { id: "company", group: "finance", label: "기업 체력", kind: "score", get: (s) => s.company ?? null, help: "같은 업종 안에서의 재무 상대 순위" },
-  { id: "fin_margin", group: "finance", label: "영업이익률", ready: false },
-  { id: "fin_debt", group: "finance", label: "부채비율 (낮을수록 좋음)", ready: false },
+  { id: "fin_margin", group: "finance", label: "영업이익률 (업종 내 순위)", kind: "score", get: (s) => s.fin?.margin ?? null, help: "같은 업종 안에서 영업이익률 백분위" },
+  { id: "fin_revenue", group: "finance", label: "매출 규모 (업종 내 순위)", kind: "score", get: (s) => s.fin?.revenue ?? null, help: "같은 업종 안에서 매출 규모 백분위" },
+  { id: "fin_debt", group: "finance", label: "부채비율 (낮을수록 좋음)", kind: "score", get: (s) => s.fin?.debt ?? null, help: "낮은 부채비율일수록 높은 점수 (이미 반전 처리됨)" },
+  { id: "fin_current", group: "finance", label: "유동비율 (업종 내 순위)", kind: "score", get: (s) => s.fin?.current ?? null, help: "같은 업종 안에서 유동비율 백분위" },
   { id: "fin_growth", group: "finance", label: "매출·이익 성장률", ready: false },
   { id: "fin_val", group: "finance", label: "PER · PBR · ROE", ready: false },
 
@@ -53,6 +55,8 @@ const CATALOG = [
   { id: "tech_flow", group: "tech", label: "거래대금 흐름", kind: "score", get: (s) => s.f?.flow ?? null },
   { id: "tech_rsi", group: "tech", label: "RSI", ready: false },
   { id: "tech_ma", group: "tech", label: "이동평균 이격", ready: false },
+  { id: "gap_short", group: "tech", label: "코스피 대비 (5일)", kind: "gap", get: (s) => s.gap?.short ?? null, help: "같은 기간 코스피 수익률 대비 초과 수익률(%p)" },
+  { id: "gap_mid", group: "tech", label: "코스피 대비 (20일)", kind: "gap", get: (s) => s.gap?.mid ?? null, help: "같은 기간 코스피 수익률 대비 초과 수익률(%p)" },
 
   // 테마 (화제성 = 최근 뉴스·리포트 언급 정도. 유망도·전망이 아니다)
   { id: "theme_buzz", group: "theme", label: "테마 화제성", kind: "grade", get: maxBuzzOf, help: "소속 테마 중 가장 높은 화제성 단계 (아직 3개 테마만 조사됨)" },
@@ -78,6 +82,7 @@ const PRESETS = [
 const defaultCond = (id) => {
   const d = byId[id];
   if (d.kind === "score") return { id, op: "gte", value: 70 };
+  if (d.kind === "gap") return { id, op: "gte", value: 10 };
   if (d.kind === "grade") return { id, op: "gte", value: 4 };
   if (d.kind === "flag") return { id, op: "is", value: false };
   return { id, op: "in", value: "" };
@@ -86,7 +91,7 @@ const defaultCond = (id) => {
 const passes = (s, c) => {
   const d = byId[c.id];
   if (!d) return true;
-  if (d.kind === "score") {
+  if (d.kind === "score" || d.kind === "gap") {
     const v = d.get(s);
     if (v == null) return false;
     return c.op === "lte" ? v <= c.value : v >= c.value;
@@ -98,6 +103,7 @@ const passes = (s, c) => {
 };
 
 // 정렬: 점수형 조건이 있으면 그 값들의 평균(이하 조건은 뒤집어서), 없으면 시장 신호 순.
+// gap(코스피 대비, %p)은 점수(0~100)와 스케일이 달라서 0~100으로 맞춰 넣는다(-50%p~+50%p -> 0~100).
 const sortValue = (s, conds) => {
   const vals = [];
   conds.forEach((c) => {
@@ -106,6 +112,12 @@ const sortValue = (s, conds) => {
     if (d.kind === "score") {
       const v = d.get(s);
       if (v != null) vals.push(c.op === "lte" ? 100 - v : v);
+    } else if (d.kind === "gap") {
+      const v = d.get(s);
+      if (v != null) {
+        const norm = Math.max(0, Math.min(100, v + 50));
+        vals.push(c.op === "lte" ? 100 - norm : norm);
+      }
     } else if (d.kind === "grade") {
       vals.push(d.get(s) * 20);
     }
@@ -244,14 +256,16 @@ export default function Screener() {
                     <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: d.kind === "flag" || d.kind === "theme" ? 0 : 8 }}>
                       <span style={{ fontSize: 13, fontWeight: 700, flex: 1 }}>{d.label}</span>
 
-                      {d.kind === "score" && (
+                      {(d.kind === "score" || d.kind === "gap") && (
                         <>
                           <select value={c.op} onChange={(e) => updateCond(c.uid, { op: e.target.value })}
                             style={{ fontFamily: "inherit", fontSize: 12, padding: "4px 6px", border: `1px solid ${C.line}`, borderRadius: 4, background: C.panel }}>
                             <option value="gte">이상</option>
                             <option value="lte">이하</option>
                           </select>
-                          <span className="mono" style={{ fontSize: 13, fontWeight: 700, width: 30, textAlign: "right" }}>{c.value}</span>
+                          <span className="mono" style={{ fontSize: 13, fontWeight: 700, width: 38, textAlign: "right" }}>
+                            {c.value > 0 && d.kind === "gap" ? "+" : ""}{c.value}{d.kind === "gap" ? "%p" : ""}
+                          </span>
                         </>
                       )}
                       {d.kind === "grade" && (
@@ -280,6 +294,9 @@ export default function Screener() {
                     </div>
                     {d.kind === "score" && (
                       <input type="range" min="0" max="100" step="5" value={c.value} onChange={(e) => updateCond(c.uid, { value: Number(e.target.value) })} />
+                    )}
+                    {d.kind === "gap" && (
+                      <input type="range" min="-50" max="50" step="5" value={c.value} onChange={(e) => updateCond(c.uid, { value: Number(e.target.value) })} />
                     )}
                     {d.kind === "grade" && (
                       <input type="range" min="1" max="5" step="1" value={c.value} onChange={(e) => updateCond(c.uid, { value: Number(e.target.value) })} />

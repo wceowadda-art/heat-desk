@@ -181,6 +181,7 @@ export default function Landing() {
         .cta { cursor:pointer; border:none; border-radius:3px; padding:14px 22px; font-size:15px; font-weight:600; font-family:inherit; background:${C.ink}; color:#fff; white-space:nowrap; }
         .cta-outline { cursor:pointer; border-radius:3px; padding:11px 16px; font-size:13px; font-weight:600; font-family:inherit; background:transparent; color:${C.ink}; border:1px solid ${C.line}; }
         .cta-outline:hover { border-color:${C.ink}; }
+        .screener-tile:hover { border-color:${C.ink}; }
         .wrap { max-width:1060px; margin:0 auto; padding:0 18px; }
         .htable { width:100%; border-collapse:collapse; font-size:13px; }
         .htable th { text-align:right; font-weight:600; font-size:11px; color:${C.muted}; padding:7px 8px; border-bottom:1px solid ${C.line}; }
@@ -234,9 +235,28 @@ export default function Landing() {
             )}
           </div>
 
-          <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginTop: 14 }}>
-            <button className="cta-outline" onClick={() => window.location.href = "/?page=screener"}>내 기준으로 종목 찾기 →</button>
-            <button className="cta-outline" onClick={() => formRef.current?.scrollIntoView({ behavior: reduce ? "auto" : "smooth" })}>오픈 알림 받기</button>
+          <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginTop: 16, maxWidth: 560 }}>
+            <button
+              className="screener-tile"
+              onClick={() => {
+                if (window.gtag) window.gtag("event", "screener_entry_click", { from: "home_hero" });
+                window.location.href = "/?page=screener";
+              }}
+              style={{
+                cursor: "pointer", flex: "1 1 220px", display: "flex", alignItems: "center", gap: 10,
+                padding: "12px 14px", borderRadius: 4, border: `1px solid ${C.line}`, background: C.panel,
+                fontFamily: "inherit", textAlign: "left",
+              }}
+            >
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" style={{ flexShrink: 0 }}>
+                <path d="M4 5h16M7 12h10M10 19h4" stroke={C.ink} strokeWidth="2" strokeLinecap="round" />
+              </svg>
+              <span>
+                <div style={{ fontSize: 13, fontWeight: 700, color: C.ink }}>내 기준으로 종목 찾기</div>
+                <div style={{ fontSize: 11, color: C.muted }}>재무·기술적 지표·테마 조건 조합</div>
+              </span>
+            </button>
+            <button className="cta-outline" style={{ flex: "0 0 auto" }} onClick={() => formRef.current?.scrollIntoView({ behavior: reduce ? "auto" : "smooth" })}>오픈 알림 받기</button>
           </div>
         </section>
 
