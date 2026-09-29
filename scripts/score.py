@@ -6,11 +6,13 @@ import os
 
 FACTORS = ["vol", "mom", "high", "vola", "flow"]
 
+HORIZON_DAYS = {"short": 5, "mid": 20, "long": 60}
+
 def factors(g, col):
     v, cl = g[col["vol"]], g[col["close"]]
     rng = (g[col["high"]] - g[col["low"]]) / cl
     val = cl * v
-    return {
+    out = {
         "vol":  v.iloc[-1] / v.iloc[:-1].mean() if len(v) > 1 and v.iloc[:-1].mean() != 0 else 0,
         "mom":  cl.iloc[-1] / cl.iloc[0] - 1 if len(cl) > 1 and cl.iloc[0] != 0 else 0,
         "high": cl.iloc[-1] / g[col["high"]].max() if g[col["high"]].max() > 0 else 0,
@@ -20,6 +22,11 @@ def factors(g, col):
         "value": float(cl.iloc[-1] * v.iloc[-1]),
         "chg":   round((cl.iloc[-1] / cl.iloc[-2] - 1) * 100, 2) if len(cl) > 1 and cl.iloc[-2] != 0 else 0,
     }
+    # 종목 자체의 기간별 수익률 (지수 괴리도 계산용). 데이터가 그 기간만큼 없으면 생략한다.
+    for hname, n in HORIZON_DAYS.items():
+        if len(cl) > n and cl.iloc[-1 - n] != 0:
+            out[f"ret_{hname}"] = round(float(cl.iloc[-1] / cl.iloc[-1 - n] - 1) * 100, 2)
+    return out
 
 def clean_nan(obj):
     if isinstance(obj, dict):
@@ -31,10 +38,20 @@ def clean_nan(obj):
     return obj
 
 def load_company_scores():
+    """corp_score.csv에서 종합점수뿐 아니라 세부 백분위(영업이익률/매출규모/부채비율/유동비율)도 같이 읽는다.
+    스크리너에서 세부 지표로 걸러 쓸 수 있게 하기 위함. 컬럼이 없으면 조용히 건너뛴다."""
     if not os.path.exists("corp_score.csv"):
         return {}
     df = pd.read_csv("corp_score.csv", dtype={"code": str})
-    return dict(zip(df["code"], df["company_score"]))
+    detail_cols = ["operating_margin_pct", "revenue_pct", "debt_ratio_pct", "current_ratio_pct"]
+    result = {}
+    for _, r in df.iterrows():
+        entry = {"score": r["company_score"]}
+        for col in detail_cols:
+            if col in df.columns and pd.notna(r.get(col)):
+                entry[col] = float(r[col])
+        result[r["code"]] = entry
+    return result
 
 def load_disclosures():
     if not os.path.exists("disclosures.csv"):
@@ -75,6 +92,22 @@ def load_theme_buzz():
             "note": r["note"],
             "checked_date": r["checked_date"],
         }
+    return result
+
+def load_index_returns():
+    """index_heat.json(코스피/코스닥 과열도)에서 종목 쪽에는 없는 '기간 수익률'만 뽑아온다.
+    make_index_heat.py가 저장하는 팩터 백분위와 달리, 여기서는 실제 등락률이 필요해서
+    index_heat.json에 있으면 쓰고, 없으면 종목 쪽에서 지수 괴리도를 계산하지 않는다."""
+    path = "../public/index_heat.json"
+    if not os.path.exists(path):
+        return {}
+    with open(path, "r", encoding="utf-8") as f:
+        data = json.load(f)
+    result = {}
+    for key, entry in (data.get("indexes") or {}).items():
+        rets = entry.get("returns")  # {"short": %, "mid": %, "long": %} 형태를 기대
+        if rets:
+            result[key] = rets
     return result
 
 def build(path, col, sub, top, min_value=0):
@@ -139,9 +172,22 @@ if __name__ == "__main__":
     top_kr = kr_list[:cf.TOP_KR]
 
     def attach_extra(item, code):
-        comp_score = company_scores.get(code)
-        if comp_score is not None and not (isinstance(comp_score, float) and math.isnan(comp_score)):
-            item["company"] = round(float(comp_score), 1)
+        comp = company_scores.get(code)
+        if comp is not None:
+            score_val = comp.get("score")
+            if score_val is not None and not (isinstance(score_val, float) and math.isnan(score_val)):
+                item["company"] = round(float(score_val), 1)
+            fin = {}
+            if "operating_margin_pct" in comp:
+                fin["margin"] = round(comp["operating_margin_pct"], 1)
+            if "revenue_pct" in comp:
+                fin["revenue"] = round(comp["revenue_pct"], 1)
+            if "debt_ratio_pct" in comp:
+                fin["debt"] = round(comp["debt_ratio_pct"], 1)
+            if "current_ratio_pct" in comp:
+                fin["current"] = round(comp["current_ratio_pct"], 1)
+            if fin:
+                item["fin"] = fin
 
         disc = disclosures.get(code)
         if disc:
@@ -165,6 +211,11 @@ if __name__ == "__main__":
 
         return item
 
+    index_returns = load_index_returns()
+    # 코스피 기준으로 괴리도를 계산한다. 종목별 실제 소속 시장(코스피/코스닥) 구분은
+    # 아직 데이터에 없어서, 다음 단계에서 시장 구분이 생기면 더 정교하게 나눌 수 있다.
+    kospi_returns = index_returns.get("kospi", {})
+
     def to_json_sorted_by_score(df_subset):
         df_subset = df_subset.sort_values("total", ascending=False)
         result = []
@@ -174,6 +225,15 @@ if __name__ == "__main__":
                 "close": float(r["close"]),
                 "f": {k: float(r[k + "_s"]) for k in FACTORS},
             }
+            if kospi_returns:
+                gap = {}
+                for hname in HORIZON_DAYS:
+                    stock_ret = r.get(f"ret_{hname}")
+                    idx_ret = kospi_returns.get(hname)
+                    if stock_ret is not None and not (isinstance(stock_ret, float) and math.isnan(stock_ret)) and idx_ret is not None:
+                        gap[hname] = round(float(stock_ret) - float(idx_ret), 2)
+                if gap:
+                    item["gap"] = gap  # 같은 기간 코스피 대비 초과 수익률(%p). 양수면 지수보다 더 올랐다는 뜻
             item = attach_extra(item, r["id"])
             result.append(item)
         return result
