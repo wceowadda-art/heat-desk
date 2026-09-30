@@ -11777,6 +11777,632 @@
           "flow": 5.3
         }
       }
+    ],
+    "20261001": [
+      {
+        "id": "000020",
+        "name": "동화약품",
+        "chg": 0.0,
+        "r1": null,
+        "r5": null,
+        "r20": null,
+        "rnow": null,
+        "f": {
+          "vol": 8.5,
+          "mom": 45.4,
+          "high": 13.9,
+          "vola": 14.8,
+          "flow": 7.9
+        }
+      },
+      {
+        "id": "000040",
+        "name": "KR모터스",
+        "chg": -0.68,
+        "r1": null,
+        "r5": null,
+        "r20": null,
+        "rnow": null,
+        "f": {
+          "vol": 31.4,
+          "mom": 8.7,
+          "high": 12.4,
+          "vola": 60.5,
+          "flow": 16.5
+        }
+      },
+      {
+        "id": "000050",
+        "name": "경방",
+        "chg": -0.5,
+        "r1": null,
+        "r5": null,
+        "r20": null,
+        "rnow": null,
+        "f": {
+          "vol": 68.4,
+          "mom": 38.6,
+          "high": 53.0,
+          "vola": 46.8,
+          "flow": 50.5
+        }
+      },
+      {
+        "id": "000070",
+        "name": "삼양홀딩스",
+        "chg": 0.87,
+        "r1": null,
+        "r5": null,
+        "r20": null,
+        "rnow": null,
+        "f": {
+          "vol": 51.4,
+          "mom": 54.4,
+          "high": 83.1,
+          "vola": 18.6,
+          "flow": 51.5
+        }
+      },
+      {
+        "id": "000080",
+        "name": "하이트진로",
+        "chg": -1.33,
+        "r1": null,
+        "r5": null,
+        "r20": null,
+        "rnow": null,
+        "f": {
+          "vol": 86.1,
+          "mom": 43.1,
+          "high": 82.1,
+          "vola": 87.1,
+          "flow": 64.3
+        }
+      },
+      {
+        "id": "000100",
+        "name": "유한양행",
+        "chg": -0.68,
+        "r1": null,
+        "r5": null,
+        "r20": null,
+        "rnow": null,
+        "f": {
+          "vol": 66.6,
+          "mom": 59.5,
+          "high": 45.6,
+          "vola": 48.5,
+          "flow": 57.3
+        }
+      },
+      {
+        "id": "000120",
+        "name": "CJ대한통운",
+        "chg": -0.28,
+        "r1": null,
+        "r5": null,
+        "r20": null,
+        "rnow": null,
+        "f": {
+          "vol": 47.0,
+          "mom": 26.0,
+          "high": 63.2,
+          "vola": 27.6,
+          "flow": 52.4
+        }
+      },
+      {
+        "id": "000140",
+        "name": "하이트진로홀딩스",
+        "chg": -0.64,
+        "r1": null,
+        "r5": null,
+        "r20": null,
+        "rnow": null,
+        "f": {
+          "vol": 29.8,
+          "mom": 30.6,
+          "high": 77.2,
+          "vola": 34.1,
+          "flow": 35.0
+        }
+      },
+      {
+        "id": "000150",
+        "name": "두산",
+        "chg": -2.0,
+        "r1": null,
+        "r5": null,
+        "r20": null,
+        "rnow": null,
+        "f": {
+          "vol": 60.4,
+          "mom": 34.4,
+          "high": 67.4,
+          "vola": 13.0,
+          "flow": 81.0
+        }
+      },
+      {
+        "id": "000180",
+        "name": "성창기업지주",
+        "chg": -1.51,
+        "r1": null,
+        "r5": null,
+        "r20": null,
+        "rnow": null,
+        "f": {
+          "vol": 22.6,
+          "mom": 47.2,
+          "high": 65.9,
+          "vola": 79.8,
+          "flow": 59.7
+        }
+      },
+      {
+        "id": "000210",
+        "name": "DL",
+        "chg": -1.68,
+        "r1": null,
+        "r5": null,
+        "r20": null,
+        "rnow": null,
+        "f": {
+          "vol": 62.3,
+          "mom": 69.3,
+          "high": 61.8,
+          "vola": 62.4,
+          "flow": 41.9
+        }
+      },
+      {
+        "id": "000220",
+        "name": "유유제약",
+        "chg": -0.27,
+        "r1": null,
+        "r5": null,
+        "r20": null,
+        "rnow": null,
+        "f": {
+          "vol": 21.6,
+          "mom": 38.3,
+          "high": 40.6,
+          "vola": 42.7,
+          "flow": 23.9
+        }
+      },
+      {
+        "id": "000230",
+        "name": "일동홀딩스",
+        "chg": -0.67,
+        "r1": null,
+        "r5": null,
+        "r20": null,
+        "rnow": null,
+        "f": {
+          "vol": 29.9,
+          "mom": 27.0,
+          "high": 27.4,
+          "vola": 46.0,
+          "flow": 27.6
+        }
+      },
+      {
+        "id": "000240",
+        "name": "한국앤컴퍼니",
+        "chg": 0.8,
+        "r1": null,
+        "r5": null,
+        "r20": null,
+        "rnow": null,
+        "f": {
+          "vol": 65.5,
+          "mom": 41.2,
+          "high": 84.8,
+          "vola": 53.2,
+          "flow": 66.4
+        }
+      },
+      {
+        "id": "000250",
+        "name": "삼천당제약",
+        "chg": 3.67,
+        "r1": null,
+        "r5": null,
+        "r20": null,
+        "rnow": null,
+        "f": {
+          "vol": 59.9,
+          "mom": 11.2,
+          "high": 14.7,
+          "vola": 54.6,
+          "flow": 32.4
+        }
+      },
+      {
+        "id": "000270",
+        "name": "기아",
+        "chg": -2.07,
+        "r1": null,
+        "r5": null,
+        "r20": null,
+        "rnow": null,
+        "f": {
+          "vol": 79.8,
+          "mom": 7.1,
+          "high": 16.8,
+          "vola": 68.0,
+          "flow": 69.9
+        }
+      },
+      {
+        "id": "000300",
+        "name": "DH오토넥스",
+        "chg": 0.0,
+        "r1": null,
+        "r5": null,
+        "r20": null,
+        "rnow": null,
+        "f": {
+          "vol": 2.4,
+          "mom": 49.1,
+          "high": 1.4,
+          "vola": 2.7,
+          "flow": 2.2
+        }
+      },
+      {
+        "id": "000320",
+        "name": "노루홀딩스",
+        "chg": 0.25,
+        "r1": null,
+        "r5": null,
+        "r20": null,
+        "rnow": null,
+        "f": {
+          "vol": 53.0,
+          "mom": 38.1,
+          "high": 34.5,
+          "vola": 79.3,
+          "flow": 65.9
+        }
+      },
+      {
+        "id": "000370",
+        "name": "한화손해보험",
+        "chg": -6.12,
+        "r1": null,
+        "r5": null,
+        "r20": null,
+        "rnow": null,
+        "f": {
+          "vol": 85.0,
+          "mom": 88.3,
+          "high": 35.1,
+          "vola": 88.5,
+          "flow": 77.2
+        }
+      },
+      {
+        "id": "000390",
+        "name": "SP삼화",
+        "chg": -0.99,
+        "r1": null,
+        "r5": null,
+        "r20": null,
+        "rnow": null,
+        "f": {
+          "vol": 78.5,
+          "mom": 75.4,
+          "high": 93.9,
+          "vola": 62.6,
+          "flow": 74.3
+        }
+      },
+      {
+        "id": "ADA",
+        "name": "ADA",
+        "chg": 1.21,
+        "r1": null,
+        "r5": null,
+        "r20": null,
+        "rnow": null,
+        "f": {
+          "vol": 36.8,
+          "mom": 47.4,
+          "high": 63.2,
+          "vola": 73.7,
+          "flow": 68.4
+        }
+      },
+      {
+        "id": "APT",
+        "name": "APT",
+        "chg": 0.09,
+        "r1": null,
+        "r5": null,
+        "r20": null,
+        "rnow": null,
+        "f": {
+          "vol": 31.6,
+          "mom": 68.4,
+          "high": 26.3,
+          "vola": 21.1,
+          "flow": 52.6
+        }
+      },
+      {
+        "id": "ARB",
+        "name": "ARB",
+        "chg": -0.36,
+        "r1": null,
+        "r5": null,
+        "r20": null,
+        "rnow": null,
+        "f": {
+          "vol": 10.5,
+          "mom": 94.7,
+          "high": 5.3,
+          "vola": 5.3,
+          "flow": 15.8
+        }
+      },
+      {
+        "id": "ATOM",
+        "name": "ATOM",
+        "chg": 0.6,
+        "r1": null,
+        "r5": null,
+        "r20": null,
+        "rnow": null,
+        "f": {
+          "vol": 78.9,
+          "mom": 31.6,
+          "high": 21.1,
+          "vola": 10.5,
+          "flow": 78.9
+        }
+      },
+      {
+        "id": "AVAX",
+        "name": "AVAX",
+        "chg": -3.47,
+        "r1": null,
+        "r5": null,
+        "r20": null,
+        "rnow": null,
+        "f": {
+          "vol": 89.5,
+          "mom": 73.7,
+          "high": 47.4,
+          "vola": 57.9,
+          "flow": 84.2
+        }
+      },
+      {
+        "id": "BTC",
+        "name": "BTC",
+        "chg": 0.52,
+        "r1": null,
+        "r5": null,
+        "r20": null,
+        "rnow": null,
+        "f": {
+          "vol": 73.7,
+          "mom": 10.5,
+          "high": 100.0,
+          "vola": 94.7,
+          "flow": 26.3
+        }
+      },
+      {
+        "id": "DOGE",
+        "name": "DOGE",
+        "chg": 1.57,
+        "r1": null,
+        "r5": null,
+        "r20": null,
+        "rnow": null,
+        "f": {
+          "vol": 100.0,
+          "mom": 26.3,
+          "high": 31.6,
+          "vola": 68.4,
+          "flow": 57.9
+        }
+      },
+      {
+        "id": "DOT",
+        "name": "DOT",
+        "chg": 2.9,
+        "r1": null,
+        "r5": null,
+        "r20": null,
+        "rnow": null,
+        "f": {
+          "vol": 21.1,
+          "mom": 63.2,
+          "high": 78.9,
+          "vola": 42.1,
+          "flow": 63.2
+        }
+      },
+      {
+        "id": "ETH",
+        "name": "ETH",
+        "chg": 0.25,
+        "r1": null,
+        "r5": null,
+        "r20": null,
+        "rnow": null,
+        "f": {
+          "vol": 47.4,
+          "mom": 15.8,
+          "high": 89.5,
+          "vola": 47.4,
+          "flow": 21.1
+        }
+      },
+      {
+        "id": "INJ",
+        "name": "INJ",
+        "chg": -3.0,
+        "r1": null,
+        "r5": null,
+        "r20": null,
+        "rnow": null,
+        "f": {
+          "vol": 5.3,
+          "mom": 89.5,
+          "high": 15.8,
+          "vola": 15.8,
+          "flow": 5.3
+        }
+      },
+      {
+        "id": "LINK",
+        "name": "LINK",
+        "chg": -0.2,
+        "r1": null,
+        "r5": null,
+        "r20": null,
+        "rnow": null,
+        "f": {
+          "vol": 84.2,
+          "mom": 52.6,
+          "high": 52.6,
+          "vola": 78.9,
+          "flow": 100.0
+        }
+      },
+      {
+        "id": "NEAR",
+        "name": "NEAR",
+        "chg": 6.71,
+        "r1": null,
+        "r5": null,
+        "r20": null,
+        "rnow": null,
+        "f": {
+          "vol": 68.4,
+          "mom": 100.0,
+          "high": 73.7,
+          "vola": 89.5,
+          "flow": 73.7
+        }
+      },
+      {
+        "id": "SAND",
+        "name": "SAND",
+        "chg": 0.0,
+        "r1": null,
+        "r5": null,
+        "r20": null,
+        "rnow": null,
+        "f": {
+          "vol": 15.8,
+          "mom": 42.1,
+          "high": 57.9,
+          "vola": 52.6,
+          "flow": 10.5
+        }
+      },
+      {
+        "id": "SEI",
+        "name": "SEI",
+        "chg": -1.41,
+        "r1": null,
+        "r5": null,
+        "r20": null,
+        "rnow": null,
+        "f": {
+          "vol": 57.9,
+          "mom": 78.9,
+          "high": 10.5,
+          "vola": 31.6,
+          "flow": 89.5
+        }
+      },
+      {
+        "id": "SOL",
+        "name": "SOL",
+        "chg": 0.12,
+        "r1": null,
+        "r5": null,
+        "r20": null,
+        "rnow": null,
+        "f": {
+          "vol": 63.2,
+          "mom": 36.8,
+          "high": 84.2,
+          "vola": 63.2,
+          "flow": 36.8
+        }
+      },
+      {
+        "id": "STX",
+        "name": "STX",
+        "chg": 7.23,
+        "r1": null,
+        "r5": null,
+        "r20": null,
+        "rnow": null,
+        "f": {
+          "vol": 42.1,
+          "mom": 57.9,
+          "high": 68.4,
+          "vola": 100.0,
+          "flow": 47.4
+        }
+      },
+      {
+        "id": "SUI",
+        "name": "SUI",
+        "chg": 1.79,
+        "r1": null,
+        "r5": null,
+        "r20": null,
+        "rnow": null,
+        "f": {
+          "vol": 94.7,
+          "mom": 84.2,
+          "high": 36.8,
+          "vola": 36.8,
+          "flow": 94.7
+        }
+      },
+      {
+        "id": "TRX",
+        "name": "TRX",
+        "chg": 1.32,
+        "r1": null,
+        "r5": null,
+        "r20": null,
+        "rnow": null,
+        "f": {
+          "vol": 52.6,
+          "mom": 5.3,
+          "high": 94.7,
+          "vola": 84.2,
+          "flow": 42.1
+        }
+      },
+      {
+        "id": "XRP",
+        "name": "XRP",
+        "chg": 0.79,
+        "r1": null,
+        "r5": null,
+        "r20": null,
+        "rnow": null,
+        "f": {
+          "vol": 26.3,
+          "mom": 21.1,
+          "high": 42.1,
+          "vola": 26.3,
+          "flow": 31.6
+        }
+      }
     ]
   },
   "large": {
@@ -12577,6 +13203,88 @@
           "flow": 94.2
         }
       }
+    ],
+    "20261001": [
+      {
+        "id": "000100",
+        "name": "유한양행",
+        "chg": -0.68,
+        "r1": null,
+        "r5": null,
+        "r20": null,
+        "rnow": null,
+        "f": {
+          "vol": 66.6,
+          "mom": 59.5,
+          "high": 45.6,
+          "vola": 48.5,
+          "flow": 57.3
+        }
+      },
+      {
+        "id": "000150",
+        "name": "두산",
+        "chg": -2.0,
+        "r1": null,
+        "r5": null,
+        "r20": null,
+        "rnow": null,
+        "f": {
+          "vol": 60.4,
+          "mom": 34.4,
+          "high": 67.4,
+          "vola": 13.0,
+          "flow": 81.0
+        }
+      },
+      {
+        "id": "000250",
+        "name": "삼천당제약",
+        "chg": 3.67,
+        "r1": null,
+        "r5": null,
+        "r20": null,
+        "rnow": null,
+        "f": {
+          "vol": 59.9,
+          "mom": 11.2,
+          "high": 14.7,
+          "vola": 54.6,
+          "flow": 32.4
+        }
+      },
+      {
+        "id": "000270",
+        "name": "기아",
+        "chg": -2.07,
+        "r1": null,
+        "r5": null,
+        "r20": null,
+        "rnow": null,
+        "f": {
+          "vol": 79.8,
+          "mom": 7.1,
+          "high": 16.8,
+          "vola": 68.0,
+          "flow": 69.9
+        }
+      },
+      {
+        "id": "000370",
+        "name": "한화손해보험",
+        "chg": -6.12,
+        "r1": null,
+        "r5": null,
+        "r20": null,
+        "rnow": null,
+        "f": {
+          "vol": 85.0,
+          "mom": 88.3,
+          "high": 35.1,
+          "vola": 88.5,
+          "flow": 77.2
+        }
+      }
     ]
   },
   "mid": {
@@ -13071,6 +13779,88 @@
           "high": 82.0,
           "vola": 76.5,
           "flow": 75.4
+        }
+      }
+    ],
+    "20261001": [
+      {
+        "id": "000080",
+        "name": "하이트진로",
+        "chg": -1.33,
+        "r1": null,
+        "r5": null,
+        "r20": null,
+        "rnow": null,
+        "f": {
+          "vol": 86.1,
+          "mom": 43.1,
+          "high": 82.1,
+          "vola": 87.1,
+          "flow": 64.3
+        }
+      },
+      {
+        "id": "000120",
+        "name": "CJ대한통운",
+        "chg": -0.28,
+        "r1": null,
+        "r5": null,
+        "r20": null,
+        "rnow": null,
+        "f": {
+          "vol": 47.0,
+          "mom": 26.0,
+          "high": 63.2,
+          "vola": 27.6,
+          "flow": 52.4
+        }
+      },
+      {
+        "id": "000210",
+        "name": "DL",
+        "chg": -1.68,
+        "r1": null,
+        "r5": null,
+        "r20": null,
+        "rnow": null,
+        "f": {
+          "vol": 62.3,
+          "mom": 69.3,
+          "high": 61.8,
+          "vola": 62.4,
+          "flow": 41.9
+        }
+      },
+      {
+        "id": "000240",
+        "name": "한국앤컴퍼니",
+        "chg": 0.8,
+        "r1": null,
+        "r5": null,
+        "r20": null,
+        "rnow": null,
+        "f": {
+          "vol": 65.5,
+          "mom": 41.2,
+          "high": 84.8,
+          "vola": 53.2,
+          "flow": 66.4
+        }
+      },
+      {
+        "id": "000390",
+        "name": "SP삼화",
+        "chg": -0.99,
+        "r1": null,
+        "r5": null,
+        "r20": null,
+        "rnow": null,
+        "f": {
+          "vol": 78.5,
+          "mom": 75.4,
+          "high": 93.9,
+          "vola": 62.6,
+          "flow": 74.3
         }
       }
     ]
@@ -13629,6 +14419,104 @@
           "high": 83.2,
           "vola": 77.4,
           "flow": 51.4
+        }
+      }
+    ],
+    "20261001": [
+      {
+        "id": "000020",
+        "name": "동화약품",
+        "chg": 0.0,
+        "r1": null,
+        "r5": null,
+        "r20": null,
+        "rnow": null,
+        "f": {
+          "vol": 8.5,
+          "mom": 45.4,
+          "high": 13.9,
+          "vola": 14.8,
+          "flow": 7.9
+        }
+      },
+      {
+        "id": "000050",
+        "name": "경방",
+        "chg": -0.5,
+        "r1": null,
+        "r5": null,
+        "r20": null,
+        "rnow": null,
+        "f": {
+          "vol": 68.4,
+          "mom": 38.6,
+          "high": 53.0,
+          "vola": 46.8,
+          "flow": 50.5
+        }
+      },
+      {
+        "id": "000070",
+        "name": "삼양홀딩스",
+        "chg": 0.87,
+        "r1": null,
+        "r5": null,
+        "r20": null,
+        "rnow": null,
+        "f": {
+          "vol": 51.4,
+          "mom": 54.4,
+          "high": 83.1,
+          "vola": 18.6,
+          "flow": 51.5
+        }
+      },
+      {
+        "id": "000220",
+        "name": "유유제약",
+        "chg": -0.27,
+        "r1": null,
+        "r5": null,
+        "r20": null,
+        "rnow": null,
+        "f": {
+          "vol": 21.6,
+          "mom": 38.3,
+          "high": 40.6,
+          "vola": 42.7,
+          "flow": 23.9
+        }
+      },
+      {
+        "id": "000230",
+        "name": "일동홀딩스",
+        "chg": -0.67,
+        "r1": null,
+        "r5": null,
+        "r20": null,
+        "rnow": null,
+        "f": {
+          "vol": 29.9,
+          "mom": 27.0,
+          "high": 27.4,
+          "vola": 46.0,
+          "flow": 27.6
+        }
+      },
+      {
+        "id": "000320",
+        "name": "노루홀딩스",
+        "chg": 0.25,
+        "r1": null,
+        "r5": null,
+        "r20": null,
+        "rnow": null,
+        "f": {
+          "vol": 53.0,
+          "mom": 38.1,
+          "high": 34.5,
+          "vola": 79.3,
+          "flow": 65.9
         }
       }
     ]
