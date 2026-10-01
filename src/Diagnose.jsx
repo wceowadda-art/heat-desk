@@ -384,6 +384,21 @@ export default function Diagnose() {
                 <div style={{ fontSize: 11, color: C.muted, marginBottom: 12 }}>{formattedDate}</div>
               )}
 
+              {/* 4축 요약: 종목 보자마자 바로 보이는 레이더 차트. 비중 조절은 아래 "내 기준 종합점수" 카드에서 */}
+              {result.axes && (
+                <div style={{ background: C.panel, border: `1px solid ${C.line}`, borderRadius: 6, padding: 24, marginBottom: 14, textAlign: "center" }}>
+                  <div style={{ fontSize: 13, color: C.muted, marginBottom: 14, textAlign: "left" }}>한눈에 보기</div>
+                  <Radar axisDefs={AXIS_DEFS} axes={result.axes} />
+                  {composite !== null && (
+                    <div style={{ marginTop: 10 }}>
+                      <span className="mono" style={{ fontSize: 13, color: C.muted }}>내 기준 종합점수 </span>
+                      <span className="mono" style={{ fontSize: 18, fontWeight: 700 }}>{composite}</span>
+                      <span className="mono" style={{ fontSize: 13, color: C.muted }}> / 100</span>
+                    </div>
+                  )}
+                </div>
+              )}
+
               {result.themes && result.themes.length > 0 && (
                 <div style={{ background: C.panel, border: `1px solid ${C.line}`, borderRadius: 6, padding: 24, marginBottom: 14 }}>
                   <div style={{ fontSize: 13, color: C.muted, marginBottom: 12 }}>테마</div>
@@ -532,10 +547,11 @@ export default function Diagnose() {
                 )}
               </div>
 
-              {/* 내 기준 종합점수 - 사용자가 직접 정한 가중치로만 계산. 사이트가 임의로 비중을 정하지 않는다 */}
+              {/* 비중 직접 정하기 - 사용자가 직접 정한 가중치로만 계산. 사이트가 임의로 비중을 정하지 않는다.
+                  레이더 차트 자체는 위쪽 "한눈에 보기" 카드에 있고, 여기는 슬라이더 조작용 */}
               {result.axes && (
                 <div style={{ background: C.panel, border: `1px solid ${C.line}`, borderRadius: 6, padding: 24, marginTop: 14 }}>
-                  <div style={{ fontSize: 13, color: C.muted, marginBottom: 10 }}>내 기준 종합점수</div>
+                  <div style={{ fontSize: 13, color: C.muted, marginBottom: 10 }}>내 기준 종합점수 조정</div>
 
                   <div style={{ display: "flex", alignItems: "baseline", gap: 10, marginBottom: 4 }}>
                     {composite !== null ? (
@@ -548,11 +564,7 @@ export default function Diagnose() {
                     )}
                   </div>
                   <div style={{ fontSize: 12, color: C.muted, marginBottom: 18, lineHeight: 1.5 }}>
-                    아래 네 가지 비중을 직접 정하면, 그 비중으로 계산한 점수입니다. 추천이 아니라 계산기입니다.
-                  </div>
-
-                  <div style={{ display: "flex", justifyContent: "center", marginBottom: 18 }}>
-                    <Radar axisDefs={AXIS_DEFS} axes={result.axes} />
+                    아래 네 가지 비중을 직접 정하면, 위쪽 레이더 차트와 이 점수가 그 비중으로 다시 계산됩니다. 추천이 아니라 계산기입니다.
                   </div>
 
                   <div style={{ borderTop: `1px solid ${C.line}`, paddingTop: 14 }}>
