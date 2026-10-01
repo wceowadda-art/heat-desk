@@ -43,6 +43,72 @@ function statusFromMarketScore(score) {
   return { label: "잠잠함", color: C.down };
 }
 
+// 4축 레이더 차트. 순수 SVG로 그려서 별도 라이브러리 설치가 필요 없다.
+// axes: { market, company, event, theme } 각 0~100 또는 null(데이터 없음).
+function Radar({ axisDefs, axes, size = 220 }) {
+  const cx = size / 2;
+  const cy = size / 2;
+  const r = size / 2 - 34;
+  const n = axisDefs.length;
+  const angleFor = (i) => -Math.PI / 2 + (i * 2 * Math.PI) / n;
+  const pointFor = (i, value) => {
+    const a = angleFor(i);
+    const rr = (Math.max(0, Math.min(100, value)) / 100) * r;
+    return [cx + rr * Math.cos(a), cy + rr * Math.sin(a)];
+  };
+
+  const dataPoints = axisDefs.map((d, i) => {
+    const v = axes[d.key];
+    return v === null || v === undefined ? null : pointFor(i, v);
+  });
+  const hasAnyData = dataPoints.some((p) => p !== null);
+  // null인 축은 0으로 취급해 선을 이어 그리되(구멍처럼 보이게), 실제 값 유무는 점 유무로 구분한다.
+  const polygonPoints = axisDefs
+    .map((d, i) => pointFor(i, axes[d.key] ?? 0))
+    .map((p) => p.join(","))
+    .join(" ");
+
+  const rings = [25, 50, 75, 100];
+
+  return (
+    <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} role="img" aria-label="4축 레이더 차트">
+      {rings.map((ring) => {
+        const pts = axisDefs.map((_, i) => pointFor(i, ring).join(",")).join(" ");
+        return <polygon key={ring} points={pts} fill="none" stroke={C.line} strokeWidth="1" />;
+      })}
+      {axisDefs.map((d, i) => {
+        const [x, y] = pointFor(i, 100);
+        return <line key={d.key} x1={cx} y1={cy} x2={x} y2={y} stroke={C.line} strokeWidth="1" />;
+      })}
+      {hasAnyData && (
+        <polygon points={polygonPoints} fill={C.ink} fillOpacity="0.12" stroke={C.ink} strokeWidth="2" />
+      )}
+      {dataPoints.map((p, i) =>
+        p ? <circle key={i} cx={p[0]} cy={p[1]} r="4" fill={axisDefs[i].color} /> : null
+      )}
+      {axisDefs.map((d, i) => {
+        const [lx, ly] = pointFor(i, 100 + 26 / (r / 100));
+        const v = axes[d.key];
+        return (
+          <text
+            key={d.key}
+            x={lx}
+            y={ly}
+            textAnchor="middle"
+            dominantBaseline="middle"
+            fontSize="11"
+            fontFamily="'Inter Tight','Noto Sans KR',sans-serif"
+            fill={v === null || v === undefined ? C.muted : C.ink}
+            fontWeight={v === null || v === undefined ? 400 : 600}
+          >
+            {d.label}
+          </text>
+        );
+      })}
+    </svg>
+  );
+}
+
 function formatDate(yyyymmdd) {
   if (!yyyymmdd) return "";
   const s = String(yyyymmdd);
@@ -82,6 +148,31 @@ export default function Diagnose() {
   const avgPrice = parseFloat(avgInput);
   const returnPct =
     result?.close && avgPrice > 0 ? (result.close / avgPrice - 1) * 100 : null;
+
+  // 내 기준 종합점수: 4축(시장/기업/공시/테마) 가중치는 사용자가 직접 정한다.
+  // Claude나 사이트가 임의로 "좋은 종목" 기준을 정하는 게 아니라, 사용자가 비중을 고르고
+  // 그 결과를 계산해서 보여줄 뿐이다. 데이터 없는 축은 가중치와 함께 계산에서 자동 제외된다.
+  const AXIS_DEFS = [
+    { key: "market", label: "시장 신호", color: C.up },
+    { key: "company", label: "기업 체력", color: C.warn },
+    { key: "event", label: "공시 안전성", color: "#3E8E7E" },
+    { key: "theme", label: "테마 화제성", color: C.down },
+  ];
+  const [weights, setWeights] = useState({ market: 3, company: 3, event: 3, theme: 3 });
+
+  const composite = useMemo(() => {
+    if (!result?.axes) return null;
+    let sumW = 0, sumWV = 0;
+    AXIS_DEFS.forEach(({ key }) => {
+      const v = result.axes[key];
+      const w = weights[key];
+      if (v !== null && v !== undefined && w > 0) {
+        sumW += w;
+        sumWV += w * v;
+      }
+    });
+    return sumW > 0 ? Math.round(sumWV / sumW) : null;
+  }, [result, weights]);
 
   useEffect(() => {
     fetch("/heat_kr.json")
@@ -135,6 +226,7 @@ export default function Diagnose() {
         themes: found.themes ?? null,
         themeBuzz: found.theme_buzz ?? null,
         gap: found.gap ?? null,
+        axes: found.axes ?? null,
       });
       setStatus("found");
     }, 300);
@@ -439,6 +531,63 @@ export default function Diagnose() {
                   </div>
                 )}
               </div>
+
+              {/* 내 기준 종합점수 - 사용자가 직접 정한 가중치로만 계산. 사이트가 임의로 비중을 정하지 않는다 */}
+              {result.axes && (
+                <div style={{ background: C.panel, border: `1px solid ${C.line}`, borderRadius: 6, padding: 24, marginTop: 14 }}>
+                  <div style={{ fontSize: 13, color: C.muted, marginBottom: 10 }}>내 기준 종합점수</div>
+
+                  <div style={{ display: "flex", alignItems: "baseline", gap: 10, marginBottom: 4 }}>
+                    {composite !== null ? (
+                      <>
+                        <span className="mono" style={{ fontSize: 44, fontWeight: 700, lineHeight: 1 }}>{composite}</span>
+                        <span className="mono" style={{ fontSize: 16, color: C.muted }}>/ 100</span>
+                      </>
+                    ) : (
+                      <span style={{ fontSize: 13, color: C.muted }}>비중을 하나 이상 켜주세요.</span>
+                    )}
+                  </div>
+                  <div style={{ fontSize: 12, color: C.muted, marginBottom: 18, lineHeight: 1.5 }}>
+                    아래 네 가지 비중을 직접 정하면, 그 비중으로 계산한 점수입니다. 추천이 아니라 계산기입니다.
+                  </div>
+
+                  <div style={{ display: "flex", justifyContent: "center", marginBottom: 18 }}>
+                    <Radar axisDefs={AXIS_DEFS} axes={result.axes} />
+                  </div>
+
+                  <div style={{ borderTop: `1px solid ${C.line}`, paddingTop: 14 }}>
+                    {AXIS_DEFS.map((d) => {
+                      const v = result.axes[d.key];
+                      return (
+                        <div key={d.key} style={{ marginBottom: 12 }}>
+                          <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 4 }}>
+                            <label style={{ fontSize: 12, fontWeight: 500, display: "flex", alignItems: "center", gap: 6 }}>
+                              <span style={{ width: 8, height: 8, background: d.color, borderRadius: 1 }} />
+                              {d.label}
+                              {(v === null || v === undefined) && (
+                                <span style={{ fontSize: 10, color: C.muted }}>(자료 없음)</span>
+                              )}
+                            </label>
+                            <span className="mono" style={{ fontSize: 11, color: weights[d.key] === 0 ? C.line : C.muted }}>
+                              비중 {weights[d.key]}
+                            </span>
+                          </div>
+                          <input
+                            type="range" min="0" max="5" step="1" value={weights[d.key]}
+                            onChange={(e) => setWeights({ ...weights, [d.key]: Number(e.target.value) })}
+                            style={{ width: "100%", accentColor: C.ink }}
+                          />
+                        </div>
+                      );
+                    })}
+                  </div>
+
+                  <div style={{ fontSize: 11, color: C.muted, borderTop: `1px solid ${C.line}`, paddingTop: 10, lineHeight: 1.6 }}>
+                    비중은 이용자가 직접 정합니다. 사이트가 정한 "좋은 종목" 기준이 아니라,
+                    고른 비중대로 계산한 숫자일 뿐이며 매수·매도를 추천하지 않습니다.
+                  </div>
+                </div>
+              )}
 
               {/* 내 평단가 확인 - 수익률 계산만 보여주고, 보유·매도 판단은 하지 않는다 */}
               <div style={{ background: C.panel, border: `1px solid ${C.line}`, borderRadius: 6, padding: 24, marginTop: 14 }}>
