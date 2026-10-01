@@ -69,6 +69,35 @@ def load_disclosures():
             }
     return result
 
+# 공시 안전성 점수(0~100). 공시 자체의 호재/악재를 판정하는 게 아니라,
+# "통상 어떤 방향으로 받아들여지는 경우가 많은지"를 교과서적으로 환산한 값이다.
+# Diagnose.jsx의 DISCLOSURE_INFO 설명과 같은 분류 기준을 쓴다.
+# 긍정적으로 해석되는 경우가 많은 유형 -> 높은 점수, 지분희석/부정적 유형 -> 낮은 점수.
+EVENT_SAFETY_BY_TYPE = {
+    "자기주식취득결정": 75,
+    "자기주식취득신탁계약체결결정": 75,
+    "자기전환사채만기전취득결정": 70,
+    "유형자산양수결정": 60,
+    "타법인주식및출자증권양수결정": 55,
+    "자기주식처분결정": 45,
+    "자기주식취득신탁계약해지결정": 45,
+    "타법인주식및출자증권양도결정": 45,
+    "유형자산양도결정": 45,
+    "회사합병결정": 40,
+    "상각형조건부자본증권발행결정": 35,
+    "전환사채권발행결정": 25,
+    "유상증자결정": 20,
+    "영업정지": 5,
+}
+EVENT_SAFETY_DEFAULT = 50  # 목록에 없는 유형(분류 안 된 공시)
+EVENT_SAFETY_NONE = 100    # 최근 60일 공시 없음
+
+def event_safety_score(event):
+    """event: attach_extra에서 만든 {"has":True,"type":...} 딕셔너리 또는 None."""
+    if not event or not event.get("has"):
+        return EVENT_SAFETY_NONE
+    return EVENT_SAFETY_BY_TYPE.get(event.get("type"), EVENT_SAFETY_DEFAULT)
+
 def load_themes():
     if not os.path.exists("theme_map.csv"):
         return {}
@@ -208,6 +237,24 @@ if __name__ == "__main__":
                     buzz_info.append({"theme": t, **theme_buzz[t]})
             if buzz_info:
                 item["theme_buzz"] = buzz_info
+
+        # 4축(시장/기업/공시안전성/테마화제성) 레이더 차트 + 사용자 커스텀 종합점수용.
+        # 기업 체력과 테마는 데이터가 없는 종목이 많아 None으로 두고, 프론트에서
+        # "자료 없음"으로 표시하거나 가중치 계산에서 자동 제외하게 한다.
+        market_vals = list(item.get("f", {}).values())
+        market_score = round(sum(market_vals) / len(market_vals), 1) if market_vals else None
+
+        theme_axis = None
+        if item.get("theme_buzz"):
+            grades = [b["grade"] for b in item["theme_buzz"]]
+            theme_axis = round((sum(grades) / len(grades)) * 20, 1)  # 1~5 -> 20~100
+
+        item["axes"] = {
+            "market": market_score,
+            "company": item.get("company"),
+            "event": event_safety_score(item.get("event")),
+            "theme": theme_axis,
+        }
 
         return item
 
