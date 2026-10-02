@@ -109,6 +109,55 @@ function Radar({ axisDefs, axes, size = 220 }) {
   );
 }
 
+// 수급 패턴을 일반적인 케이스로 안내한다. "이 종목이 오른다/떨어진다"가 아니라
+// "이런 조합은 통상 이렇게 해석되곤 한다"는 교과서적 설명까지만 준다.
+// 조건은 위에서부터 먼저 맞는 것 하나만 적용한다(우선순위 순).
+function matchFlowCase(flow, chgPct) {
+  if (!flow) return null;
+  const f5 = flow.foreign_5, i5 = flow.inst_5, p5 = flow.retail_5;
+  if (f5 == null || i5 == null || p5 == null) return null;
+
+  const isUp = chgPct != null && chgPct > 0;
+
+  if (f5 > 0 && i5 > 0) {
+    return {
+      title: "외국인·기관 동시 순매수",
+      note: "양쪽 투자 주체가 같이 들어오는 모습입니다. 두 주체가 함께 사는 경우, 통상 한쪽만 살 때보다 신뢰도 높은 신호로 받아들여지는 경우가 많습니다. 다만 과거에도 이 패턴이 항상 맞았던 건 아닙니다.",
+    };
+  }
+  if (f5 < 0 && i5 < 0 && isUp) {
+    return {
+      title: "상승 중인데 외국인·기관 동시 순매도",
+      note: "주가는 오르는데 외국인·기관은 같이 빠지는 모습입니다. 전형적인 '단기 차익실현' 패턴으로 해석되는 경우가 많고, 단기 고점 신호로 언급되기도 합니다.",
+    };
+  }
+  if (f5 > 0 && p5 < 0) {
+    return {
+      title: "개인은 팔고 외국인은 사는 흐름(디커플링)",
+      note: "개인이 던지는 걸 외국인이 받아가는 모습입니다. '개미와 반대로 가라'는 속설의 근거가 되는 패턴으로 자주 언급됩니다.",
+    };
+  }
+  if (f5 < 0 && p5 > 0 && isUp) {
+    return {
+      title: "개인 순매수 집중 + 상승",
+      note: "개인 매수가 몰리면서 주가가 오르는 모습입니다. 뒤늦게 뛰어드는 추격매수로 해석되는 경우가 많고, 역사적으로 고점에서 물리는 사례가 자주 언급됩니다.",
+    };
+  }
+  if (f5 < 0 && i5 > 0) {
+    return {
+      title: "기관은 사고 외국인은 파는 흐름(엇갈림)",
+      note: "국내 기관과 외국인의 시각이 엇갈리는 모습입니다. 환헤지, 지수 편입·제외 등 서로 다른 이유로 움직였을 수 있어 해석이 갈립니다.",
+    };
+  }
+  if (f5 < 0 && !isUp) {
+    return {
+      title: "외국인 순매도 + 하락",
+      note: "외국인이 빠지면서 주가도 약한 모습입니다. 리스크 회피나 포트폴리오 조정으로 해석되는 경우가 많습니다.",
+    };
+  }
+  return null;
+}
+
 function formatDate(yyyymmdd) {
   if (!yyyymmdd) return "";
   const s = String(yyyymmdd);
@@ -584,9 +633,20 @@ export default function Diagnose() {
                         </div>
                       );
                     })}
+                    {(() => {
+                      const matched = matchFlowCase(result.flow, result.chg);
+                      if (!matched) return null;
+                      return (
+                        <div style={{ background: C.ground, borderRadius: 4, padding: 14, marginTop: 10 }}>
+                          <div style={{ fontSize: 13, fontWeight: 700, marginBottom: 6 }}>{matched.title}</div>
+                          <div style={{ fontSize: 12, color: C.muted, lineHeight: 1.6 }}>{matched.note}</div>
+                        </div>
+                      );
+                    })()}
+
                     <div style={{ fontSize: 11, color: C.muted, lineHeight: 1.6, borderTop: `1px solid ${C.line}`, marginTop: 10, paddingTop: 10 }}>
-                      순매수 금액(+)과 순매도 금액(−)만 보여드립니다. 수급이 몰렸다고 꼭 좋은 신호는 아니며,
-                      매수·매도를 추천하지 않습니다.
+                      위 해석은 일반적으로 거론되는 패턴을 소개하는 것으로, 이 종목의 향후 주가를 예측하지 않습니다.
+                      순매수 금액(+)과 순매도 금액(−)은 사실 데이터이며, 매수·매도를 추천하지 않습니다.
                     </div>
                   </>
                 ) : (
