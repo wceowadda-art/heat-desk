@@ -227,6 +227,7 @@ export default function Diagnose() {
         themeBuzz: found.theme_buzz ?? null,
         gap: found.gap ?? null,
         axes: found.axes ?? null,
+        flow: found.flow ?? null,
       });
       setStatus("found");
     }, 300);
@@ -543,6 +544,54 @@ export default function Diagnose() {
                 ) : (
                   <div style={{ fontSize: 13, color: C.muted, padding: "8px 0" }}>
                     최근 60일간 특별한 주요 공시가 확인되지 않았습니다.
+                  </div>
+                )}
+              </div>
+
+              {/* 수급 - 외국인/기관/개인 순매수 방향만 사실로 보여준다. 매수·매도 신호가 아니다.
+                  아직 전 종목이 아니라 일부만 수집돼서, 없는 종목은 "자료 준비 중"으로 처리한다. */}
+              <div style={{ background: C.panel, border: `1px solid ${C.line}`, borderRadius: 6, padding: 24, marginTop: 14 }}>
+                <div style={{ fontSize: 13, color: C.muted, marginBottom: 6 }}>최근 수급</div>
+                {result.flow ? (
+                  <>
+                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 8, marginBottom: 14 }}>
+                      <div style={{ fontSize: 11, color: C.muted }}></div>
+                      <div style={{ fontSize: 11, color: C.muted, textAlign: "right" }}>5일</div>
+                      <div style={{ fontSize: 11, color: C.muted, textAlign: "right" }}>20일</div>
+                    </div>
+                    {[
+                      { label: "외국인", k5: "foreign_5", k20: "foreign_20" },
+                      { label: "기관", k5: "inst_5", k20: "inst_20" },
+                      { label: "개인", k5: "retail_5", k20: "retail_20" },
+                    ].map((row) => {
+                      const v5 = result.flow[row.k5];
+                      const v20 = result.flow[row.k20];
+                      const fmt = (v) => {
+                        if (v === null || v === undefined) return <span style={{ color: C.muted }}>–</span>;
+                        const eok = v / 100000000; // 원 -> 억원
+                        const col = v > 0 ? C.up : v < 0 ? C.down : C.muted;
+                        return (
+                          <span className="mono" style={{ color: col, fontWeight: 600 }}>
+                            {v > 0 ? "+" : ""}{eok.toFixed(0)}억
+                          </span>
+                        );
+                      };
+                      return (
+                        <div key={row.label} style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 8, padding: "7px 0", borderTop: `1px solid #F0F2F6`, fontSize: 13 }}>
+                          <div>{row.label}</div>
+                          <div style={{ textAlign: "right" }}>{fmt(v5)}</div>
+                          <div style={{ textAlign: "right" }}>{fmt(v20)}</div>
+                        </div>
+                      );
+                    })}
+                    <div style={{ fontSize: 11, color: C.muted, lineHeight: 1.6, borderTop: `1px solid ${C.line}`, marginTop: 10, paddingTop: 10 }}>
+                      순매수 금액(+)과 순매도 금액(−)만 보여드립니다. 수급이 몰렸다고 꼭 좋은 신호는 아니며,
+                      매수·매도를 추천하지 않습니다.
+                    </div>
+                  </>
+                ) : (
+                  <div style={{ fontSize: 13, color: C.muted, padding: "8px 0" }}>
+                    이 종목은 수급 자료를 아직 준비 중입니다. 순차적으로 채워가고 있습니다.
                   </div>
                 )}
               </div>
