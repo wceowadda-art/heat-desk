@@ -121,38 +121,44 @@ function matchFlowCase(flow, chgPct) {
 
   if (f5 > 0 && i5 > 0) {
     return {
-      title: "외국인·기관 동시 순매수",
-      note: "양쪽 투자 주체가 같이 들어오는 모습입니다. 두 주체가 함께 사는 경우, 통상 한쪽만 살 때보다 신뢰도 높은 신호로 받아들여지는 경우가 많습니다. 다만 과거에도 이 패턴이 항상 맞았던 건 아닙니다.",
+      title: "외국인·기관이 같이 산다",
+      shortNote: "단기: 보통 더 믿을 만한 신호로 봐요.",
+      longNote: "장기: 꾸준히 이어지면 긍정적으로 보는 시각이 많아요.",
     };
   }
   if (f5 < 0 && i5 < 0 && isUp) {
     return {
-      title: "상승 중인데 외국인·기관 동시 순매도",
-      note: "주가는 오르는데 외국인·기관은 같이 빠지는 모습입니다. 전형적인 '단기 차익실현' 패턴으로 해석되는 경우가 많고, 단기 고점 신호로 언급되기도 합니다.",
+      title: "오르는데 큰손들은 판다",
+      shortNote: "단기: 차익실현으로 보는 경우가 많아요. 단기 고점 신호로도 자주 언급돼요.",
+      longNote: "장기: 한 번만으론 추세 전환이라 보기 어렵고, 며칠 더 지켜보는 경우가 많아요.",
     };
   }
   if (f5 > 0 && p5 < 0) {
     return {
-      title: "개인은 팔고 외국인은 사는 흐름(디커플링)",
-      note: "개인이 던지는 걸 외국인이 받아가는 모습입니다. '개미와 반대로 가라'는 속설의 근거가 되는 패턴으로 자주 언급됩니다.",
+      title: "개인은 팔고 외국인은 산다",
+      shortNote: "단기: 개인이 던진 걸 외국인이 받는 모습이에요.",
+      longNote: "장기: '개미와 반대로 가라'는 말의 근거가 되는 패턴이에요.",
     };
   }
   if (f5 < 0 && p5 > 0 && isUp) {
     return {
-      title: "개인 순매수 집중 + 상승",
-      note: "개인 매수가 몰리면서 주가가 오르는 모습입니다. 뒤늦게 뛰어드는 추격매수로 해석되는 경우가 많고, 역사적으로 고점에서 물리는 사례가 자주 언급됩니다.",
+      title: "개인만 몰리며 오른다",
+      shortNote: "단기: 뒤늦게 뛰어드는 추격매수로 보는 경우가 많아요.",
+      longNote: "장기: 고점에서 물리는 사례가 자주 언급되는 패턴이에요.",
     };
   }
   if (f5 < 0 && i5 > 0) {
     return {
-      title: "기관은 사고 외국인은 파는 흐름(엇갈림)",
-      note: "국내 기관과 외국인의 시각이 엇갈리는 모습입니다. 환헤지, 지수 편입·제외 등 서로 다른 이유로 움직였을 수 있어 해석이 갈립니다.",
+      title: "기관은 사고 외국인은 판다",
+      shortNote: "단기: 둘의 시각이 엇갈려요.",
+      longNote: "장기: 각자 다른 이유(환헤지 등)일 수 있어 해석이 갈려요.",
     };
   }
   if (f5 < 0 && !isUp) {
     return {
-      title: "외국인 순매도 + 하락",
-      note: "외국인이 빠지면서 주가도 약한 모습입니다. 리스크 회피나 포트폴리오 조정으로 해석되는 경우가 많습니다.",
+      title: "외국인이 팔며 내린다",
+      shortNote: "단기: 리스크 회피 움직임으로 보는 경우가 많아요.",
+      longNote: "장기: 포트폴리오 조정 차원이면, 시간이 지나며 다시 돌아오기도 해요.",
     };
   }
   return null;
@@ -638,8 +644,9 @@ export default function Diagnose() {
                       if (!matched) return null;
                       return (
                         <div style={{ background: C.ground, borderRadius: 4, padding: 14, marginTop: 10 }}>
-                          <div style={{ fontSize: 13, fontWeight: 700, marginBottom: 6 }}>{matched.title}</div>
-                          <div style={{ fontSize: 12, color: C.muted, lineHeight: 1.6 }}>{matched.note}</div>
+                          <div style={{ fontSize: 13, fontWeight: 700, marginBottom: 8 }}>{matched.title}</div>
+                          <div style={{ fontSize: 12, color: C.ink, lineHeight: 1.6, marginBottom: 4 }}>{matched.shortNote}</div>
+                          <div style={{ fontSize: 12, color: C.muted, lineHeight: 1.6 }}>{matched.longNote}</div>
                         </div>
                       );
                     })()}
