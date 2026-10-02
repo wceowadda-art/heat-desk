@@ -98,6 +98,25 @@ def event_safety_score(event):
         return EVENT_SAFETY_NONE
     return EVENT_SAFETY_BY_TYPE.get(event.get("type"), EVENT_SAFETY_DEFAULT)
 
+def load_flow():
+    """flow.csv(투자자별 순매수)를 읽어온다. 아직 전 종목이 아니라 일부 종목만 있을 수 있는데,
+    없는 종목은 그냥 데이터를 안 붙이고 프론트에서 '자료 없음'으로 처리한다."""
+    if not os.path.exists("flow.csv"):
+        return {}
+    df = pd.read_csv("flow.csv", dtype={"code": str})
+    result = {}
+    for _, r in df.iterrows():
+        vals = {
+            "f_net_5": r.get("f_net_5"), "f_net_20": r.get("f_net_20"),
+            "i_net_5": r.get("i_net_5"), "i_net_20": r.get("i_net_20"),
+            "p_net_5": r.get("p_net_5"), "p_net_20": r.get("p_net_20"),
+        }
+        # 전부 NaN이면(해당 종목 수집 실패) 아예 건너뛴다.
+        if all(pd.isna(v) for v in vals.values()):
+            continue
+        result[r["code"]] = {k: (None if pd.isna(v) else float(v)) for k, v in vals.items()}
+    return result
+
 def load_themes():
     if not os.path.exists("theme_map.csv"):
         return {}
@@ -187,10 +206,12 @@ if __name__ == "__main__":
     disclosures = load_disclosures()
     themes = load_themes()
     theme_buzz = load_theme_buzz()
+    flow = load_flow()
     print(f"기업 체력 점수 로드: {len(company_scores)}개")
     print(f"공시 정보 로드: {len(disclosures)}개")
     print(f"테마 정보 로드: {len(themes)}개")
     print(f"테마 화제성 로드: {len(theme_buzz)}개 (전체 30개 중)")
+    print(f"수급 정보 로드: {len(flow)}개 (아직 전 종목 아님, 수집 진행 중)")
 
     coin_list, _ = build("raw_coin.csv",
                  {"close": "trade_price", "high": "high_price",
@@ -237,6 +258,17 @@ if __name__ == "__main__":
                     buzz_info.append({"theme": t, **theme_buzz[t]})
             if buzz_info:
                 item["theme_buzz"] = buzz_info
+
+        f = flow.get(code)
+        if f:
+            # 원 단위 금액 대신 방향(+면 순매수, -면 순매도)과 대략적 규모만 넘긴다.
+            # 아직 전 종목이 아니라 일부만 있으므로, 없는 종목은 필드 자체를 생략해
+            # 프론트에서 "수급 자료 없음"으로 자연스럽게 처리되게 한다.
+            item["flow"] = {
+                "foreign_5": f["f_net_5"], "foreign_20": f["f_net_20"],
+                "inst_5": f["i_net_5"], "inst_20": f["i_net_20"],
+                "retail_5": f["p_net_5"], "retail_20": f["p_net_20"],
+            }
 
         # 4축(시장/기업/공시안전성/테마화제성) 레이더 차트 + 사용자 커스텀 종합점수용.
         # 기업 체력과 테마는 데이터가 없는 종목이 많아 None으로 두고, 프론트에서
