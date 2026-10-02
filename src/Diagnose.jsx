@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo } from "react";
+import Nav from "./Nav.jsx";
 
 const C = {
   ground: "#E9ECF2",
@@ -328,7 +329,8 @@ export default function Diagnose() {
       `}</style>
 
       <div className="dg">
-        <section className="wrap" style={{ paddingTop: 56, paddingBottom: 28 }}>
+        <Nav page="diagnose" />
+        <section className="wrap" style={{ paddingTop: 36, paddingBottom: 28 }}>
           <h1 style={{ fontSize: "clamp(24px,5vw,32px)", fontWeight: 700, margin: "0 0 8px" }}>
             내 종목의 시장 신호를 확인하세요
           </h1>

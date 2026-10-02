@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo, useRef } from "react";
+import Nav from "./Nav.jsx";
 
 const C = {
   ground: "#E9ECF2",
@@ -209,9 +210,9 @@ export default function Screener() {
       `}</style>
 
       <div className="sc">
-        <section className="wrap" style={{ paddingTop: 56, paddingBottom: 20 }}>
-          <a href="/" style={{ fontSize: 12, color: C.muted, textDecoration: "none" }}>← HEAT DESK</a>
-          <h1 style={{ fontSize: "clamp(24px,5vw,32px)", fontWeight: 700, margin: "10px 0 8px" }}>내 기준으로 종목 찾기</h1>
+        <Nav page="screener" />
+        <section className="wrap" style={{ paddingTop: 36, paddingBottom: 20 }}>
+          <h1 style={{ fontSize: "clamp(24px,5vw,32px)", fontWeight: 700, margin: "0 0 8px" }}>내 기준으로 종목 찾기</h1>
           <p style={{ fontSize: 14, color: C.muted, margin: 0, lineHeight: 1.6 }}>
             재무 · 기술적 지표 · 테마 · 이벤트에서 조건을 골라 담으면, 지금 그 조건에 맞는 종목을 보여드립니다.
           </p>

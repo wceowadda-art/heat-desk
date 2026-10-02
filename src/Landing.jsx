@@ -1,4 +1,5 @@
 import React, { useState, useMemo, useEffect, useRef } from "react";
+import Nav from "./Nav.jsx";
 
 const TALLY_ID = "gDPDRO";
 
@@ -195,8 +196,9 @@ export default function Landing() {
       `}</style>
 
       <div className="hd">
+        <Nav page="home" />
         {/* 1) 히어로: 종목 검색이 첫 화면의 주인공 */}
-        <section className="wrap" style={{ paddingTop: 48, paddingBottom: 28 }}>
+        <section className="wrap" style={{ paddingTop: 36, paddingBottom: 28 }}>
           <div className="mono" style={{ fontSize: 11, letterSpacing: ".18em", color: C.muted, marginBottom: 12 }}>KOSPI · KOSDAQ</div>
           <h1 className="anton" style={{ fontSize: "clamp(40px,9vw,76px)", lineHeight: 0.9, margin: 0 }}>HEAT DESK</h1>
           <p style={{ fontSize: "clamp(15px,2.2vw,18px)", lineHeight: 1.55, maxWidth: 560, marginTop: 16, marginBottom: 20 }}>
@@ -262,7 +264,7 @@ export default function Landing() {
 
         {/* 2) 시장 과열도: 코스피 / 코스닥 */}
         {indexHeat?.indexes && (
-          <section className="wrap" style={{ paddingBottom: 40 }}>
+          <section id="feargreed" className="wrap" style={{ paddingBottom: 40, scrollMarginTop: 64 }}>
             <div style={{ display: "flex", alignItems: "baseline", gap: 10, marginBottom: 4, flexWrap: "wrap" }}>
               <h2 style={{ margin: 0, fontSize: 14, fontWeight: 700, letterSpacing: ".06em" }}>공탐지수</h2>
               <span style={{ fontSize: 11, color: C.muted }}>공포·탐욕 지수 · 코스피/코스닥</span>
@@ -347,7 +349,7 @@ export default function Landing() {
         <section className="wrap" style={{ paddingBottom: 44 }}>
           <h2 style={{ margin: "0 0 14px", fontSize: 14, fontWeight: 700, letterSpacing: ".06em" }}>내 기준으로 만드는 발열 랭킹</h2>
           <div style={{ display: "grid", gap: 16, gridTemplateColumns: "repeat(auto-fit,minmax(276px,1fr))" }}>
-            <div style={{ background: C.panel, border: `1px solid ${C.line}`, borderRadius: 4, padding: 18, maxWidth: 360 }}>
+            <div style={{ background: C.panel, border: `1px solid ${C.line}`, borderRadius: 6, padding: 18, maxWidth: 360 }}>
               {FACTORS.map(f => (
                 <div key={f.id} style={{ marginBottom: 14 }}>
                   <div style={{ display: "flex", justifyContent: "space-between" }}>
@@ -382,7 +384,7 @@ export default function Landing() {
                       position: "absolute", left: 0, right: 0, height: ROW_H - 6,
                       transform: `translateY(${d.rank * ROW_H}px)`,
                       transition: "transform 480ms cubic-bezier(.2,.85,.25,1)",
-                      background: C.panel, border: `1px solid ${C.line}`, borderRadius: 4, padding: "11px 13px",
+                      background: C.panel, border: `1px solid ${C.line}`, borderRadius: 6, padding: "11px 13px",
                       display: "flex", flexDirection: "column", justifyContent: "space-between",
                     }}
                   >
@@ -407,7 +409,7 @@ export default function Landing() {
         {/* 4) 팩터별 순위 */}
         <section className="wrap" style={{ paddingBottom: 44 }}>
           <h2 style={{ margin: "0 0 14px", fontSize: 14, fontWeight: 700 }}>팩터별 순위</h2>
-          <div style={{ background: C.panel, border: `1px solid ${C.line}`, borderRadius: 4, padding: 16 }}>
+          <div style={{ background: C.panel, border: `1px solid ${C.line}`, borderRadius: 6, padding: 16 }}>
             <div style={{ display: "flex", gap: 8, marginBottom: 16, overflowX: "auto" }}>
               {FACTORS.map(f => (
                 <button key={f.id} onClick={() => setFactorFilter(f.id)}
@@ -440,7 +442,7 @@ export default function Landing() {
           <p style={{ fontSize: 12, color: C.muted, margin: "0 0 14px" }}>
             점수는 5개 팩터(거래량·모멘텀·신고가·변동성·거래대금 흐름)의 평균 백분위입니다. 높을수록 지금 더 뜨겁다는 뜻입니다.
           </p>
-          <div style={{ background: C.panel, border: `1px solid ${C.line}`, borderRadius: 4, padding: 16 }}>
+          <div style={{ background: C.panel, border: `1px solid ${C.line}`, borderRadius: 6, padding: 16 }}>
             <div style={{ display: "flex", gap: 8, marginBottom: 16, overflowX: "auto" }}>
               {[
                 { k: "all", label: "전체" },
@@ -479,7 +481,7 @@ export default function Landing() {
           <section className="wrap" style={{ paddingBottom: 44 }}>
             <h2 style={{ margin: "0 0 14px", fontSize: 14, fontWeight: 700 }}>그날 상위 10개, 그 뒤 어떻게 됐나</h2>
             {avg && (
-              <div style={{ background: C.panel, border: `1px solid ${C.line}`, borderRadius: 4, padding: 14, marginBottom: 12 }}>
+              <div style={{ background: C.panel, border: `1px solid ${C.line}`, borderRadius: 6, padding: 14, marginBottom: 12 }}>
                 <div style={{ fontSize: 11, color: C.muted, marginBottom: 10 }}>전체 {days.length}일 · {avg.n}건 평균</div>
                 <div style={{ display: "grid", gap: 10, gridTemplateColumns: "repeat(auto-fit,minmax(96px,1fr))" }}>
                   {HORIZONS.map(({ k, label }) => (
@@ -488,7 +490,7 @@ export default function Landing() {
                 </div>
               </div>
             )}
-            <div style={{ background: C.panel, border: `1px solid ${C.line}`, borderRadius: 4, padding: 14 }}>
+            <div style={{ background: C.panel, border: `1px solid ${C.line}`, borderRadius: 6, padding: 14 }}>
               <div style={{ display: "flex", gap: 8, marginBottom: 12, overflowX: "auto" }}>
                 {[
                   { k: "all", label: "전체" },
@@ -533,7 +535,7 @@ export default function Landing() {
           <h2 style={{ margin: "0 0 14px", fontSize: 14, fontWeight: 700 }}>오픈 시 열리는 것</h2>
           <div style={{ display: "grid", gap: 12, gridTemplateColumns: "repeat(auto-fit,minmax(240px,1fr))" }}>
             {LOCKED.map(l => (
-              <div key={l.t} style={{ background: C.panel, border: `1px solid ${C.line}`, borderRadius: 4, padding: 18 }}>
+              <div key={l.t} style={{ background: C.panel, border: `1px solid ${C.line}`, borderRadius: 6, padding: 18 }}>
                 <div className="mono" style={{ fontSize: 10, letterSpacing: ".14em", color: C.muted, marginBottom: 9 }}>LOCKED</div>
                 <div style={{ fontSize: 17, fontWeight: 700, marginBottom: 7 }}>{l.t}</div>
                 <div style={{ fontSize: 13, lineHeight: 1.55, color: C.muted }}>{l.d}</div>
@@ -544,7 +546,7 @@ export default function Landing() {
 
         {/* 8) 알림 신청: 맨 아래로 이동 */}
         <section ref={formRef} className="wrap" style={{ paddingBottom: 48 }}>
-          <div style={{ background: C.panel, border: `1px solid ${C.line}`, borderRadius: 4, padding: 26 }}>
+          <div style={{ background: C.panel, border: `1px solid ${C.line}`, borderRadius: 6, padding: 26 }}>
             <h2 className="anton" style={{ margin: "0 0 8px", fontSize: "clamp(26px,5vw,38px)", lineHeight: 1 }}>먼저 써볼 사람</h2>
             <p style={{ fontSize: 14, color: C.muted, margin: "0 0 20px", lineHeight: 1.6 }}>새 기능이 열리면 가장 먼저 알려드립니다. 결제 없고, 광고 메일도 보내지 않습니다.</p>
             <iframe
