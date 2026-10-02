@@ -70,13 +70,17 @@ const CATALOG = [
 const byId = Object.fromEntries(CATALOG.map((c) => [c.id, c]));
 
 // 빠른 시작: "조건 배열"일 뿐이다. 누르면 빌더에 조건이 채워진다.
+// key가 있는 프리셋은 /?page=screener&preset=<key> 로 외부(홈의 공탐지수 카드 등)에서 바로 연결할 수 있다.
 const PRESETS = [
-  { label: "재무 탄탄 + 최근 공시 없음", conds: [{ id: "company", op: "gte", value: 70 }, { id: "event_has", op: "is", value: false }] },
-  { label: "재무 탄탄한데 시장은 잠잠", conds: [{ id: "company", op: "gte", value: 70 }, { id: "tech_market", op: "lte", value: 40 }] },
-  { label: "화제성 높은 테마", conds: [{ id: "theme_buzz", op: "gte", value: 4 }] },
-  { label: "재무 약한데 시장은 과열 (조심)", conds: [{ id: "company", op: "lte", value: 40 }, { id: "tech_market", op: "gte", value: 70 }] },
-  { label: "돌파 임박", conds: [{ id: "tech_high", op: "gte", value: 80 }, { id: "tech_vol", op: "gte", value: 80 }] },
-  { label: "상승 흐름", conds: [{ id: "tech_mom", op: "gte", value: 80 }, { id: "tech_vol", op: "gte", value: 70 }] },
+  { key: "solid_quiet_event", label: "재무 탄탄 + 최근 공시 없음", conds: [{ id: "company", op: "gte", value: 70 }, { id: "event_has", op: "is", value: false }] },
+  { key: "solid_calm", label: "재무 탄탄한데 시장은 잠잠", conds: [{ id: "company", op: "gte", value: 70 }, { id: "tech_market", op: "lte", value: 40 }] },
+  { key: "buzz_theme", label: "화제성 높은 테마", conds: [{ id: "theme_buzz", op: "gte", value: 4 }] },
+  { key: "hot_weak", label: "재무 약한데 시장은 과열 (조심)", conds: [{ id: "company", op: "lte", value: 40 }, { id: "tech_market", op: "gte", value: 70 }] },
+  { key: "breakout", label: "돌파 임박", conds: [{ id: "tech_high", op: "gte", value: 80 }, { id: "tech_vol", op: "gte", value: 80 }] },
+  { key: "momentum", label: "상승 흐름", conds: [{ id: "tech_mom", op: "gte", value: 80 }, { id: "tech_vol", op: "gte", value: 70 }] },
+  // 공탐지수 카드에서 연결되는 프리셋. "공포구간이니 사라"가 아니라, 괴리도 조건으로 직접 걸러보게 한다.
+  { key: "lagging_kospi", label: "최근 코스피보다 뒤처진 종목", conds: [{ id: "gap_mid", op: "lte", value: -10 }] },
+  { key: "leading_kospi", label: "최근 코스피보다 앞선 종목", conds: [{ id: "gap_mid", op: "gte", value: 10 }] },
 ];
 
 const defaultCond = (id) => {
@@ -148,6 +152,17 @@ export default function Screener() {
         setLoading(false);
       })
       .catch(() => setLoading(false));
+
+    // 홈의 공탐지수 카드 등 외부에서 /?page=screener&preset=<key> 로 들어오면 그 프리셋을 바로 채워준다.
+    const params = new URLSearchParams(window.location.search);
+    const presetKey = params.get("preset");
+    if (presetKey) {
+      const matched = PRESETS.find((p) => p.key === presetKey);
+      if (matched) {
+        setConds(matched.conds.map((c) => ({ ...c, uid: ++uid.current })));
+        if (window.gtag) window.gtag("event", "screener_preset_click", { preset: matched.label, source: "url" });
+      }
+    }
   }, []);
 
   const themeNames = useMemo(() => {

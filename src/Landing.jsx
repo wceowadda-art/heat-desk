@@ -298,6 +298,39 @@ export default function Landing() {
                         );
                       })}
                     </div>
+                    {k === "kospi" && ix.horizons?.mid && (
+                      <div style={{ marginTop: 14, paddingTop: 12, borderTop: `1px solid ${C.line}` }}>
+                        {ix.horizons.mid.score < 40 ? (
+                          <button
+                            onClick={() => {
+                              if (window.gtag) window.gtag("event", "feargreed_to_screener", { direction: "fear" });
+                              window.location.href = "/?page=screener&preset=lagging_kospi";
+                            }}
+                            style={{
+                              cursor: "pointer", width: "100%", textAlign: "left", fontFamily: "inherit",
+                              fontSize: 12, padding: "9px 12px", borderRadius: 4, border: `1px solid ${C.line}`, background: "transparent", color: C.ink,
+                            }}
+                          >
+                            공포 구간. 코스피보다 뒤처진 종목 찾아보기 →
+                          </button>
+                        ) : ix.horizons.mid.score > 60 ? (
+                          <button
+                            onClick={() => {
+                              if (window.gtag) window.gtag("event", "feargreed_to_screener", { direction: "greed" });
+                              window.location.href = "/?page=screener&preset=leading_kospi";
+                            }}
+                            style={{
+                              cursor: "pointer", width: "100%", textAlign: "left", fontFamily: "inherit",
+                              fontSize: 12, padding: "9px 12px", borderRadius: 4, border: `1px solid ${C.line}`, background: "transparent", color: C.ink,
+                            }}
+                          >
+                            탐욕 구간. 코스피보다 앞선 종목 찾아보기 →
+                          </button>
+                        ) : (
+                          <div style={{ fontSize: 11, color: C.muted }}>중립 구간입니다.</div>
+                        )}
+                      </div>
+                    )}
                   </div>
                 );
               })}
