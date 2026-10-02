@@ -263,7 +263,13 @@ export default function Landing() {
         {/* 2) 시장 과열도: 코스피 / 코스닥 */}
         {indexHeat?.indexes && (
           <section className="wrap" style={{ paddingBottom: 40 }}>
-            <h2 style={{ margin: "0 0 12px", fontSize: 14, fontWeight: 700, letterSpacing: ".06em" }}>지금 시장은 얼마나 뜨거울까</h2>
+            <div style={{ display: "flex", alignItems: "baseline", gap: 10, marginBottom: 4, flexWrap: "wrap" }}>
+              <h2 style={{ margin: 0, fontSize: 14, fontWeight: 700, letterSpacing: ".06em" }}>공탐지수</h2>
+              <span style={{ fontSize: 11, color: C.muted }}>공포·탐욕 지수 · 코스피/코스닥</span>
+            </div>
+            <p style={{ fontSize: 11, color: C.muted, margin: "0 0 12px" }}>
+              앞으로 비트코인·금·환율 등 다른 자산도 추가될 예정입니다.
+            </p>
             <div style={{ display: "grid", gap: 12, gridTemplateColumns: "repeat(auto-fit,minmax(300px,1fr))" }}>
               {["kospi", "kosdaq"].map(k => {
                 const ix = indexHeat.indexes[k];
@@ -298,7 +304,7 @@ export default function Landing() {
             </div>
             <p style={{ fontSize: 11, color: C.muted, lineHeight: 1.6, margin: "10px 0 0" }}>
               지수는 비교할 다른 종목이 없어서, <strong>최근 1년 중 지금이 얼마나 뜨거운 위치인지</strong>로 계산합니다.
-              높을수록 최근 1년 기준으로 과열에 가깝다는 뜻이며, 좋다·나쁘다를 의미하지 않습니다.
+              높을수록 최근 1년 기준으로 과열(탐욕)에 가깝다는 뜻이며, 매수·매도 신호를 의미하지 않습니다.
               {indexHeat.indexes.kospi?.date ? ` (${fmtDate(indexHeat.indexes.kospi.date)} 기준)` : ""}
             </p>
           </section>
