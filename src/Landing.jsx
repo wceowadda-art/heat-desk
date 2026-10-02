@@ -44,7 +44,7 @@ const LOCKED = [
   { t: "발열 알림", d: "내 가중치 기준 상위권에 새로 진입한 종목을 장 마감 후 메일로." },
 ];
 
-const ROW_H = 92;
+const ROW_H = 84;
 const HORIZONS = [
   { k: "r1", label: "다음날" },
   { k: "r5", label: "1주 뒤" },
@@ -62,6 +62,17 @@ const pct = (v) => (v === null || v === undefined ? "–" : `${v >= 0 ? "+" : ""
 const tone = (v) => (v === null || v === undefined ? C.muted : v >= 0 ? C.up : C.down);
 
 const statusColor = (s) => (s === "과열 주의" ? C.up : s === "관찰 필요" ? C.warn : C.down);
+
+// 점수를 등급(A+~D)으로 환산 - Diagnose/Screener와 같은 기준.
+const gradeOf = (score) => {
+  if (score === null || score === undefined) return null;
+  if (score >= 85) return "A+";
+  if (score >= 70) return "A";
+  if (score >= 55) return "B+";
+  if (score >= 40) return "B";
+  if (score >= 25) return "C";
+  return "D";
+};
 
 const fmtDate = (s) => (s && String(s).length === 8 ? `${s.slice(0, 4)}.${s.slice(4, 6)}.${s.slice(6, 8)}` : "");
 
@@ -384,7 +395,7 @@ export default function Landing() {
                       position: "absolute", left: 0, right: 0, height: ROW_H - 6,
                       transform: `translateY(${d.rank * ROW_H}px)`,
                       transition: "transform 480ms cubic-bezier(.2,.85,.25,1)",
-                      background: C.panel, border: `1px solid ${C.line}`, borderRadius: 6, padding: "11px 13px",
+                      background: C.panel, border: `1px solid ${C.line}`, borderRadius: 6, padding: "9px 13px",
                       display: "flex", flexDirection: "column", justifyContent: "space-between",
                     }}
                   >
@@ -394,6 +405,7 @@ export default function Landing() {
                       <span className="mono" style={{ fontSize: 11, color: C.muted, flex: 1 }}>{d.sub}</span>
                       <span className="mono" style={{ fontSize: 12, fontWeight: 700, color: d.chg >= 0 ? C.up : C.down }}>{d.chg >= 0 ? "+" : ""}{d.chg.toFixed(1)}%</span>
                       <span className="mono" style={{ fontSize: 16, fontWeight: 700, width: 44, textAlign: "right" }}>{d.score.toFixed(1)}</span>
+                      <span className="mono" style={{ fontSize: 10, fontWeight: 700, color: C.muted, width: 20, textAlign: "right" }}>{gradeOf(d.score)}</span>
                     </div>
                     <div style={{ display: "flex", height: 9, background: "#F0F2F6", borderRadius: 1 }}>
                       {d.parts.map(p => (<div key={p.id} style={{ width: `${p.value}%`, background: p.color }} />))}

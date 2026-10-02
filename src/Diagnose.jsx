@@ -165,6 +165,34 @@ function matchFlowCase(flow, chgPct) {
   return null;
 }
 
+// 점수(0~100)를 등급(A+~D)으로 환산한다. 좋다·나쁘다 판정이 아니라 숫자를 더 직관적으로
+// 읽게 돕는 표기일 뿐이며, 지금까지 써온 백분위 구간(과열주의/관찰필요/잠잠함)과 같은 성격이다.
+function gradeOf(score) {
+  if (score === null || score === undefined) return null;
+  if (score >= 85) return { label: "A+", color: C.up };
+  if (score >= 70) return { label: "A", color: C.up };
+  if (score >= 55) return { label: "B+", color: C.warn };
+  if (score >= 40) return { label: "B", color: C.warn };
+  if (score >= 25) return { label: "C", color: C.down };
+  return { label: "D", color: C.down };
+}
+
+function GradeBadge({ score }) {
+  const g = gradeOf(score);
+  if (!g) return null;
+  return (
+    <span
+      className="mono"
+      style={{
+        fontSize: 13, fontWeight: 700, color: "#fff", background: g.color,
+        padding: "2px 7px", borderRadius: 4, marginLeft: 8,
+      }}
+    >
+      {g.label}
+    </span>
+  );
+}
+
 function formatDate(yyyymmdd) {
   if (!yyyymmdd) return "";
   const s = String(yyyymmdd);
@@ -498,6 +526,7 @@ export default function Diagnose() {
                 <div style={{ display: "flex", alignItems: "baseline", gap: 10, marginBottom: 4 }}>
                   <span className="mono" style={{ fontSize: 44, fontWeight: 700, lineHeight: 1 }}>{result.marketScore}</span>
                   <span className="mono" style={{ fontSize: 16, color: C.muted }}>/ 100</span>
+                  <GradeBadge score={result.marketScore} />
                 </div>
                 <div style={{ fontSize: 14, marginBottom: 4 }}>
                   현재 상태: <span style={{ fontWeight: 700, color: statusInfo.color }}>{statusInfo.label}</span>
@@ -558,6 +587,7 @@ export default function Diagnose() {
                     <div style={{ display: "flex", alignItems: "baseline", gap: 10, marginBottom: 4 }}>
                       <span className="mono" style={{ fontSize: 44, fontWeight: 700, lineHeight: 1 }}>{result.companyScore}</span>
                       <span className="mono" style={{ fontSize: 16, color: C.muted }}>/ 100</span>
+                      <GradeBadge score={result.companyScore} />
                     </div>
                     <div style={{ fontSize: 12, color: C.muted, lineHeight: 1.5 }}>
                       같은 업종 안에서의 상대 순위입니다. 영업이익률과 매출 규모, 부채비율 등을 반영했습니다.
@@ -676,6 +706,7 @@ export default function Diagnose() {
                       <>
                         <span className="mono" style={{ fontSize: 44, fontWeight: 700, lineHeight: 1 }}>{composite}</span>
                         <span className="mono" style={{ fontSize: 16, color: C.muted }}>/ 100</span>
+                        <GradeBadge score={composite} />
                       </>
                     ) : (
                       <span style={{ fontSize: 13, color: C.muted }}>비중을 하나 이상 켜주세요.</span>

@@ -138,6 +138,17 @@ function Chip({ children, color }) {
   );
 }
 
+// 점수를 등급(A+~D)으로 환산 - Diagnose.jsx와 같은 기준. 판정이 아니라 숫자를 읽기 쉽게 돕는 표기.
+function gradeOf(score) {
+  if (score === null || score === undefined) return null;
+  if (score >= 85) return "A+";
+  if (score >= 70) return "A";
+  if (score >= 55) return "B+";
+  if (score >= 40) return "B";
+  if (score >= 25) return "C";
+  return "D";
+}
+
 export default function Screener() {
   const [allStocks, setAllStocks] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -337,7 +348,7 @@ export default function Screener() {
                 results.map((r, i) => (
                   <div key={r.id} className="rrow"
                     onClick={() => (window.location.href = `/?page=diagnose&stock=${encodeURIComponent(r.name)}`)}
-                    style={{ padding: "12px 18px", borderTop: "1px solid #F0F2F6" }}>
+                    style={{ padding: "10px 18px", borderTop: "1px solid #F0F2F6" }}>
                     <div style={{ display: "flex", alignItems: "baseline", gap: 10 }}>
                       <span className="mono" style={{ fontSize: 12, color: C.muted, width: 20 }}>{String(i + 1).padStart(2, "0")}</span>
                       <span style={{ fontSize: 14, fontWeight: 600, flex: 1 }}>{r.name}</span>
@@ -346,8 +357,8 @@ export default function Screener() {
                       </span>
                     </div>
                     <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginTop: 6, paddingLeft: 30 }}>
-                      <Chip>시장 {Math.round(marketScoreOf(r))}</Chip>
-                      <Chip>{r.company != null ? `기업 ${Math.round(r.company)}` : "기업 –"}</Chip>
+                      <Chip>시장 {Math.round(marketScoreOf(r))} {gradeOf(marketScoreOf(r))}</Chip>
+                      <Chip>{r.company != null ? `기업 ${Math.round(r.company)} ${gradeOf(r.company)}` : "기업 –"}</Chip>
                       {r.event ? <Chip color={C.up}>공시 {r.event.type}</Chip> : <Chip color={C.muted}>공시 없음</Chip>}
                       {(r.themes || []).slice(0, 2).map((t) => <Chip key={t} color={C.muted}>{t}</Chip>)}
                     </div>
