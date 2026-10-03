@@ -27,11 +27,18 @@ HORIZONS = {"short": 5, "mid": 20, "long": 60}
 HIST = 250          # 백분위 비교 대상: 최근 250영업일(약 1년)
 TEMP_HORIZON = 20   # "오늘의 온도" 대표값으로 쓸 기간(= mid와 동일)
 TREND_DAYS = 90      # 온도계 클릭 시 보여줄 추이 길이
-BACKTEST_FWD = 20    # 과거 성적 계산에 쓸 "그 뒤 며칠" 수익률
+
+# 과거 성적용 기간들. 거래일 개수가 아니라 '실제 달력 날짜'로 찾는다(예: 1년 뒤 = 그 날로부터
+# 365일 뒤에 가장 가까운 실제 거래일). 거래일 개수로 세면 '1년' 뒤가 실제로는 1.4년 뒤가 되는
+# 오차가 생길 수 있어서, 반드시 날짜 기준으로 계산한다.
+BACKTEST_HORIZONS = {"30일": 30, "60일": 60, "6개월": 182, "1년": 365}
+DATE_MATCH_TOLERANCE = 7  # 목표 날짜 +7일 안에 거래일이 있으면 그걸로 대체(휴일 보정)
 
 _now = datetime.datetime.now() + datetime.timedelta(hours=9)
 END = _now.strftime("%Y%m%d")
-START = (_now - datetime.timedelta(days=800)).strftime("%Y%m%d")
+# 1년 뒤 성적까지 보려면 최소 1년+여유분의 과거 데이터가 더 필요해서 기간을 늘린다.
+# KRX에 보내는 요청 횟수는 그대로 코스피/코스닥 각 1번(총 2번)이고, 한 번에 받아오는 기간만 길어지는 것이다.
+START = (_now - datetime.timedelta(days=365 * 5)).strftime("%Y%m%d")
 
 
 def factor_series(df, n):
@@ -78,13 +85,12 @@ def status5_of(score):
 
 
 def rolling_percentile_series(s, hist=HIST):
-    """s의 각 시점에서, 그 시점 기준 과거 hist개 구간 내 백분위를 돌려준다(최근 필요한 구간만).
-    계산량을 줄이려고 전체가 아니라 필요한 구간만 돈다."""
+    """s의 모든 시점에서, 그 시점 기준 과거 hist개 구간 내 백분위를 돌려준다.
+    1년 뒤 성적까지 보려면 백테스트 표본을 뽑을 수 있는 과거 구간이 충분히 길어야 해서,
+    (예전처럼 최근 일부만이 아니라) 가능한 전체 구간에 대해 계산한다."""
     s = s.dropna()
     out = {}
-    need = TREND_DAYS + 400  # 백테스트용으로 더 과거까지 필요해서 넉넉히
-    idxs = s.index[-need:] if len(s) > need else s.index
-    for dt in idxs:
+    for dt in s.index:
         pos = s.index.get_loc(dt)
         window = s.iloc[max(0, pos - hist + 1):pos + 1]
         if len(window) < 30:
@@ -113,30 +119,45 @@ def compute_temp_series(df):
 
 
 def backtest_table(temp, close):
-    """온도 구간(버킷)별로, 그날로부터 BACKTEST_FWD일 뒤 수익률을 모아 평균 낸다.
-    '이 온도였던 과거엔 평균 이랬다'는 관찰 통계이지, 예측이 아니다."""
+    """온도 구간(버킷)별로, '실제 달력 날짜' 기준 30일/60일/6개월/1년 뒤 수익률을 모아 평균 낸다.
+    거래일 개수가 아니라 달력 날짜로 미래 시점을 찾기 때문에, '1년 뒤'는 정확히 그 날로부터
+    약 1년 뒤 거래일을 가리킨다. '이 온도였던 과거엔 평균 이랬다'는 관찰 통계이지 예측이 아니다."""
     buckets = [
         (0, 20, "극단적 공포"), (20, 40, "공포"), (40, 60, "중립"),
         (60, 80, "탐욕"), (80, 101, "극단적 탐욕"),
     ]
-    rows = []
-    close_idx = {d: i for i, d in enumerate(close.index)}
 
+    # 종목별 날짜->종가 캐시 (반복 조회 속도를 위해 dict로 변환)
+    price_by_date = {d: float(v) for d, v in close.items()}
+
+    def price_at_or_after(dt):
+        for delta in range(DATE_MATCH_TOLERANCE + 1):
+            d = dt + datetime.timedelta(days=delta)
+            p = price_by_date.get(d)
+            if p is not None:
+                return p
+        return None
+
+    rows = []
     for lo, hi, label in buckets:
-        rets = []
-        for dt, score in temp.items():
-            if not (lo <= score < hi):
-                continue
-            pos = close_idx.get(dt)
-            if pos is None or pos + BACKTEST_FWD >= len(close):
-                continue
-            fwd = close.iloc[pos + BACKTEST_FWD] / close.iloc[pos] - 1
-            rets.append(fwd)
-        rows.append({
-            "bucket": label,
-            "count": len(rets),
-            "avg_fwd_return": round(float(sum(rets) / len(rets) * 100), 2) if rets else None,
-        })
+        horizon_stats = {}
+        for hname, ndays in BACKTEST_HORIZONS.items():
+            rets = []
+            for dt, score in temp.items():
+                if not (lo <= score < hi):
+                    continue
+                base_price = price_by_date.get(dt)
+                if base_price is None:
+                    continue
+                fwd_price = price_at_or_after(dt + datetime.timedelta(days=ndays))
+                if fwd_price is None:
+                    continue
+                rets.append(fwd_price / base_price - 1)
+            horizon_stats[hname] = {
+                "count": len(rets),
+                "avg_return": round(float(sum(rets) / len(rets) * 100), 2) if rets else None,
+            }
+        rows.append({"bucket": label, "horizons": horizon_stats})
     return rows
 
 
@@ -203,10 +224,18 @@ def main():
         if "temperature" in entry:
             t = entry["temperature"]
             print(f"  오늘의 온도: {t['score']}도 ({t['label']})  구성: {t['breakdown']}")
-            print(f"  과거 성적(그 뒤 {BACKTEST_FWD}일 평균):")
+            print(f"  과거 성적 (실제 달력 날짜 기준, 거래일 개수 아님):")
+            header = "    {:10s}".format("구간") + "".join(f"{h:>16s}" for h in BACKTEST_HORIZONS)
+            print(header)
             for row in entry["backtest"]:
-                avg = f"{row['avg_fwd_return']:+.2f}%" if row["avg_fwd_return"] is not None else "표본 부족"
-                print(f"    {row['bucket']:8s} (표본 {row['count']:3d}개): {avg}")
+                cells = []
+                for hname in BACKTEST_HORIZONS:
+                    hs = row["horizons"][hname]
+                    if hs["avg_return"] is None:
+                        cells.append(f"{'표본부족':>16s}")
+                    else:
+                        cells.append(f"{hs['avg_return']:+.2f}%({hs['count']:>3d}){'':>1s}")
+                print("    {:10s}".format(row["bucket"]) + "".join(f"{c:>16s}" for c in cells))
 
     with open("../public/index_heat.json", "w", encoding="utf-8") as f:
         json.dump(out, f, ensure_ascii=False, indent=2)
