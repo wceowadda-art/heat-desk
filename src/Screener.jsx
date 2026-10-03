@@ -149,6 +149,16 @@ function gradeOf(score) {
   return "D";
 }
 
+// Diagnose.jsx와 같은 기준 - 백분위 90 이상인 팩터만 패턴으로 짚는다.
+const PATTERN_DEFS = [
+  { key: "high", min: 90, label: "신고가 임박" },
+  { key: "vol", min: 90, label: "거래량 폭발" },
+];
+function patternTags(f) {
+  if (!f) return [];
+  return PATTERN_DEFS.filter((p) => (f[p.key] ?? 0) >= p.min).map((p) => p.label);
+}
+
 export default function Screener() {
   const [allStocks, setAllStocks] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -361,6 +371,7 @@ export default function Screener() {
                       <Chip>{r.company != null ? `기업 ${Math.round(r.company)} ${gradeOf(r.company)}` : "기업 –"}</Chip>
                       {r.event ? <Chip color={C.up}>공시 {r.event.type}</Chip> : <Chip color={C.muted}>공시 없음</Chip>}
                       {(r.themes || []).slice(0, 2).map((t) => <Chip key={t} color={C.muted}>{t}</Chip>)}
+                      {patternTags(r.f).map((t) => <Chip key={t} color={C.up}>{t}</Chip>)}
                     </div>
                   </div>
                 ))

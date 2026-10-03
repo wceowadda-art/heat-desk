@@ -193,6 +193,17 @@ function GradeBadge({ score }) {
   );
 }
 
+// 시장 신호 팩터 중 상위 10%(백분위 90 이상)인 것만 "패턴"으로 짚어 보여준다.
+// 판정이 아니라, 지금 이 종목에서 어떤 지표가 유독 튀는지 짧게 이름 붙이는 것뿐이다.
+const PATTERN_DEFS = [
+  { key: "high", min: 90, label: "신고가 임박" },
+  { key: "vol", min: 90, label: "거래량 폭발" },
+];
+function patternTags(f) {
+  if (!f) return [];
+  return PATTERN_DEFS.filter((p) => (f[p.key] ?? 0) >= p.min).map((p) => p.label);
+}
+
 function formatDate(yyyymmdd) {
   if (!yyyymmdd) return "";
   const s = String(yyyymmdd);
@@ -468,6 +479,19 @@ export default function Diagnose() {
               </div>
               {formattedDate && (
                 <div style={{ fontSize: 11, color: C.muted, marginBottom: 12 }}>{formattedDate}</div>
+              )}
+
+              {patternTags(result.factors).length > 0 && (
+                <div style={{ display: "flex", gap: 6, marginBottom: 12 }}>
+                  {patternTags(result.factors).map((t) => (
+                    <span key={t} className="mono" style={{
+                      fontSize: 11, fontWeight: 700, color: "#fff", background: C.up,
+                      padding: "3px 9px", borderRadius: 999,
+                    }}>
+                      {t}
+                    </span>
+                  ))}
+                </div>
               )}
 
               {/* 4축 요약: 종목 보자마자 바로 보이는 레이더 차트. 비중 조절은 아래 "내 기준 종합점수" 카드에서 */}
