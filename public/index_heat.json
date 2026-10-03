@@ -1,5 +1,5 @@
 {
-  "updated": "2026-10-04T08:24:20.062422",
+  "updated": "2026-10-04T08:38:13.751963",
   "indexes": {
     "kospi": {
       "name": "코스피",
@@ -421,28 +421,108 @@
       "backtest": [
         {
           "bucket": "극단적 공포",
-          "count": 23,
-          "avg_fwd_return": 7.16
+          "horizons": {
+            "30일": {
+              "count": 30,
+              "avg_return": 6.14
+            },
+            "60일": {
+              "count": 14,
+              "avg_return": 10.41
+            },
+            "6개월": {
+              "count": 8,
+              "avg_return": 6.8
+            },
+            "1년": {
+              "count": 7,
+              "avg_return": 34.6
+            }
+          }
         },
         {
           "bucket": "공포",
-          "count": 83,
-          "avg_fwd_return": 8.39
+          "horizons": {
+            "30일": {
+              "count": 288,
+              "avg_return": 3.18
+            },
+            "60일": {
+              "count": 283,
+              "avg_return": 7.18
+            },
+            "6개월": {
+              "count": 256,
+              "avg_return": 15.96
+            },
+            "1년": {
+              "count": 239,
+              "avg_return": 35.2
+            }
+          }
         },
         {
           "bucket": "중립",
-          "count": 143,
-          "avg_fwd_return": 7.82
+          "horizons": {
+            "30일": {
+              "count": 431,
+              "avg_return": 1.86
+            },
+            "60일": {
+              "count": 431,
+              "avg_return": 3.58
+            },
+            "6개월": {
+              "count": 398,
+              "avg_return": 13.69
+            },
+            "1년": {
+              "count": 363,
+              "avg_return": 28.54
+            }
+          }
         },
         {
           "bucket": "탐욕",
-          "count": 108,
-          "avg_fwd_return": 2.69
+          "horizons": {
+            "30일": {
+              "count": 262,
+              "avg_return": 1.11
+            },
+            "60일": {
+              "count": 262,
+              "avg_return": 1.77
+            },
+            "6개월": {
+              "count": 250,
+              "avg_return": 13.87
+            },
+            "1년": {
+              "count": 220,
+              "avg_return": 31.67
+            }
+          }
         },
         {
           "bucket": "극단적 탐욕",
-          "count": 65,
-          "avg_fwd_return": 1.48
+          "horizons": {
+            "30일": {
+              "count": 104,
+              "avg_return": 0.42
+            },
+            "60일": {
+              "count": 104,
+              "avg_return": 2.54
+            },
+            "6개월": {
+              "count": 101,
+              "avg_return": 28.22
+            },
+            "1년": {
+              "count": 65,
+              "avg_return": 69.18
+            }
+          }
         }
       ]
     },
@@ -866,28 +946,108 @@
       "backtest": [
         {
           "bucket": "극단적 공포",
-          "count": 29,
-          "avg_fwd_return": 7.49
+          "horizons": {
+            "30일": {
+              "count": 45,
+              "avg_return": 4.39
+            },
+            "60일": {
+              "count": 45,
+              "avg_return": 3.01
+            },
+            "6개월": {
+              "count": 17,
+              "avg_return": 6.04
+            },
+            "1년": {
+              "count": 16,
+              "avg_return": -5.51
+            }
+          }
         },
         {
           "bucket": "공포",
-          "count": 100,
-          "avg_fwd_return": -2.67
+          "horizons": {
+            "30일": {
+              "count": 224,
+              "avg_return": -0.77
+            },
+            "60일": {
+              "count": 204,
+              "avg_return": -1.88
+            },
+            "6개월": {
+              "count": 165,
+              "avg_return": 0.67
+            },
+            "1년": {
+              "count": 158,
+              "avg_return": 3.43
+            }
+          }
         },
         {
           "bucket": "중립",
-          "count": 142,
-          "avg_fwd_return": 2.63
+          "horizons": {
+            "30일": {
+              "count": 525,
+              "avg_return": -0.06
+            },
+            "60일": {
+              "count": 524,
+              "avg_return": -0.39
+            },
+            "6개월": {
+              "count": 510,
+              "avg_return": 1.39
+            },
+            "1년": {
+              "count": 471,
+              "avg_return": 7.96
+            }
+          }
         },
         {
           "bucket": "탐욕",
-          "count": 119,
-          "avg_fwd_return": 2.23
+          "horizons": {
+            "30일": {
+              "count": 236,
+              "avg_return": 0.38
+            },
+            "60일": {
+              "count": 236,
+              "avg_return": 1.49
+            },
+            "6개월": {
+              "count": 236,
+              "avg_return": 5.42
+            },
+            "1년": {
+              "count": 197,
+              "avg_return": 10.01
+            }
+          }
         },
         {
           "bucket": "극단적 탐욕",
-          "count": 32,
-          "avg_fwd_return": -0.33
+          "horizons": {
+            "30일": {
+              "count": 85,
+              "avg_return": 1.52
+            },
+            "60일": {
+              "count": 85,
+              "avg_return": 4.96
+            },
+            "6개월": {
+              "count": 85,
+              "avg_return": 5.22
+            },
+            "1년": {
+              "count": 52,
+              "avg_return": 6.88
+            }
+          }
         }
       ]
     }
