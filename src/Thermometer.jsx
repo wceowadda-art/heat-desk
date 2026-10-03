@@ -32,21 +32,23 @@ const FACTOR_LABELS = {
 function ThermoSvg({ score, color, size = 130 }) {
   const w = 56;
   const h = size;
-  const cx = 30;
-  const bulbR = 20;
-  const bulbCy = h - bulbR - 4;
-  const tubeW = 16;
-  const tubeTop = 10;
-  const tubeBottom = bulbCy - bulbR * 0.3;
+  const cx = 28;
+  const bulbR = 18;
+  const bulbCy = h - bulbR - 6;
+  const tubeW = 14;
+  const tubeTop = 12;
+  // 유리관이 전구와 만나는 지점(접선). 여기보다 아래로 내려가면 눈금/사각형이 둥근 전구를
+  // 파고들어 겹쳐 보이므로, 정확히 전구 맨 위 가장자리에서 관이 끝나게 한다.
+  const tubeBottom = bulbCy - bulbR;
   const tubeH = tubeBottom - tubeTop;
   const clamped = Math.max(0, Math.min(100, score));
-  const fillH = Math.max(8, (clamped / 100) * tubeH);
+  const fillH = Math.max(6, (clamped / 100) * tubeH);
 
-  const ticks = [0, 25, 50, 75, 100];
+  const ticks = [25, 50, 75, 100];
 
   return (
     <svg width={w + 34} height={h} viewBox={`0 0 ${w + 34} ${h}`} role="img" aria-label={`온도 ${score}도`}>
-      {/* 유리관 바깥 테두리: 위는 둥근 캡, 아래는 전구와 이어짐 */}
+      {/* 유리관 바깥 테두리: 위는 둥근 캡, 아래는 전구 가장자리에서 정확히 멈춘다 */}
       <path
         d={`M ${cx - tubeW / 2} ${tubeTop + tubeW / 2}
             a ${tubeW / 2} ${tubeW / 2} 0 0 1 ${tubeW} 0
@@ -56,11 +58,11 @@ function ThermoSvg({ score, color, size = 130 }) {
       />
       <circle cx={cx} cy={bulbCy} r={bulbR + 2.5} fill={C.panel} stroke={C.line} strokeWidth="2.5" />
 
-      {/* 수은주 채움 */}
-      <rect x={cx - tubeW / 2 + 3} y={tubeBottom - fillH} width={tubeW - 6} height={fillH + bulbR + 6} fill={color} />
-      <circle cx={cx} cy={bulbCy} r={bulbR - 1} fill={color} />
+      {/* 수은주: 관 안쪽은 관 너비만큼만, 전구는 따로 꽉 채워서 서로 삐져나오지 않게 한다 */}
+      <rect x={cx - tubeW / 2 + 3} y={tubeBottom - fillH} width={tubeW - 6} height={fillH} fill={color} />
+      <circle cx={cx} cy={bulbCy} r={bulbR - 2} fill={color} />
 
-      {/* 눈금 + 숫자 */}
+      {/* 눈금 + 숫자: 전구와 겹치지 않는 관 구간에만 그린다(0은 전구 자체가 대신하므로 생략) */}
       {ticks.map((t) => {
         const y = tubeBottom - (t / 100) * tubeH;
         return (
@@ -72,7 +74,7 @@ function ThermoSvg({ score, color, size = 130 }) {
       })}
 
       {/* 전구 안 숫자 */}
-      <text x={cx} y={bulbCy + 4} textAnchor="middle" fontSize="13" fontWeight="700" fontFamily="'JetBrains Mono',monospace" fill="#fff">
+      <text x={cx} y={bulbCy + 4} textAnchor="middle" fontSize="12" fontWeight="700" fontFamily="'JetBrains Mono',monospace" fill="#fff">
         {Math.round(clamped)}
       </text>
     </svg>
@@ -117,7 +119,7 @@ export default function Thermometer({ entry }) {
         <div style={{ flex: 1 }}>
           <div style={{ fontSize: 14, fontWeight: 700, marginBottom: 2 }}>{entry.name}</div>
           <div className="mono" style={{ fontSize: 32, fontWeight: 700, color, lineHeight: 1.1 }}>
-            {score.toFixed(0)}<span style={{ fontSize: 16 }}>도</span>
+            {score.toFixed(1)}<span style={{ fontSize: 16 }}>도</span>
           </div>
           <div style={{ fontSize: 13, fontWeight: 700, color, marginTop: 2 }}>{label}</div>
         </div>
