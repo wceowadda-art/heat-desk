@@ -23,16 +23,18 @@ jobs:
 
       - name: fetch and score
         working-directory: scripts
+        env:
+          KRX_ID: ${{ secrets.KRX_ID }}
+          KRX_PW: ${{ secrets.KRX_PW }}
         run: |
           python fetch.py
+          python make_index_heat.py
           python score.py
-
-
 
       - name: commit
         run: |
           git config user.name "github-actions"
           git config user.email "actions@github.com"
-          git add public/heat_kr.json public/history.json
+          git add public/heat_kr.json public/history.json public/index_heat.json
           git diff --staged --quiet || git commit -m "update heat data"
           git push
