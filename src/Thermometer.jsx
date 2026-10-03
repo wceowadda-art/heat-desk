@@ -19,6 +19,9 @@ const LABEL_COLOR = {
   "극단적 탐욕": C.up,
 };
 
+// make_index_heat.py의 BACKTEST_HORIZONS와 이름이 같아야 한다(30일/60일/6개월/1년).
+const HORIZON_LABELS = ["30일", "60일", "6개월", "1년"];
+
 const FACTOR_LABELS = {
   mom: "모멘텀",
   value: "거래대금",
@@ -26,31 +29,52 @@ const FACTOR_LABELS = {
   vola: "변동성",
 };
 
-function ThermoSvg({ score, color, size = 120 }) {
-  const w = size * 0.42;
+function ThermoSvg({ score, color, size = 130 }) {
+  const w = 56;
   const h = size;
-  const bulbR = w * 0.95;
-  const tubeW = w * 0.46;
-  const tubeTop = bulbR * 0.3;
-  const tubeBottom = h - bulbR * 1.1;
+  const cx = 30;
+  const bulbR = 20;
+  const bulbCy = h - bulbR - 4;
+  const tubeW = 16;
+  const tubeTop = 10;
+  const tubeBottom = bulbCy - bulbR * 0.3;
   const tubeH = tubeBottom - tubeTop;
-  const fillH = Math.max(6, (Math.max(0, Math.min(100, score)) / 100) * tubeH);
+  const clamped = Math.max(0, Math.min(100, score));
+  const fillH = Math.max(8, (clamped / 100) * tubeH);
 
-  const cx = w / 2 + 6;
+  const ticks = [0, 25, 50, 75, 100];
 
   return (
-    <svg width={w + 12} height={h} viewBox={`0 0 ${w + 12} ${h}`} role="img" aria-label={`온도 ${score}도`}>
-      {/* 유리관 테두리 */}
-      <rect x={cx - tubeW / 2} y={tubeTop} width={tubeW} height={tubeH} rx={tubeW / 2} fill={C.ground} stroke={C.line} strokeWidth="2" />
-      <circle cx={cx} cy={tubeBottom + bulbR * 0.75} r={bulbR * 0.78} fill={C.ground} stroke={C.line} strokeWidth="2" />
-      {/* 수은주 */}
-      <rect x={cx - tubeW / 2 + 3} y={tubeBottom - fillH} width={tubeW - 6} height={fillH + bulbR} rx={(tubeW - 6) / 2} fill={color} />
-      <circle cx={cx} cy={tubeBottom + bulbR * 0.75} r={bulbR * 0.62} fill={color} />
-      {/* 눈금 */}
-      {[25, 50, 75].map((t) => {
+    <svg width={w + 34} height={h} viewBox={`0 0 ${w + 34} ${h}`} role="img" aria-label={`온도 ${score}도`}>
+      {/* 유리관 바깥 테두리: 위는 둥근 캡, 아래는 전구와 이어짐 */}
+      <path
+        d={`M ${cx - tubeW / 2} ${tubeTop + tubeW / 2}
+            a ${tubeW / 2} ${tubeW / 2} 0 0 1 ${tubeW} 0
+            L ${cx + tubeW / 2} ${tubeBottom}
+            L ${cx - tubeW / 2} ${tubeBottom} Z`}
+        fill={C.panel} stroke={C.line} strokeWidth="2.5"
+      />
+      <circle cx={cx} cy={bulbCy} r={bulbR + 2.5} fill={C.panel} stroke={C.line} strokeWidth="2.5" />
+
+      {/* 수은주 채움 */}
+      <rect x={cx - tubeW / 2 + 3} y={tubeBottom - fillH} width={tubeW - 6} height={fillH + bulbR + 6} fill={color} />
+      <circle cx={cx} cy={bulbCy} r={bulbR - 1} fill={color} />
+
+      {/* 눈금 + 숫자 */}
+      {ticks.map((t) => {
         const y = tubeBottom - (t / 100) * tubeH;
-        return <line key={t} x1={cx + tubeW / 2 + 2} y1={y} x2={cx + tubeW / 2 + 8} y2={y} stroke={C.muted} strokeWidth="1.5" />;
+        return (
+          <g key={t}>
+            <line x1={cx + tubeW / 2 + 3} y1={y} x2={cx + tubeW / 2 + 9} y2={y} stroke={C.muted} strokeWidth="1.5" />
+            <text x={cx + tubeW / 2 + 13} y={y + 3} fontSize="9" fontFamily="'JetBrains Mono',monospace" fill={C.muted}>{t}</text>
+          </g>
+        );
       })}
+
+      {/* 전구 안 숫자 */}
+      <text x={cx} y={bulbCy + 4} textAnchor="middle" fontSize="13" fontWeight="700" fontFamily="'JetBrains Mono',monospace" fill="#fff">
+        {Math.round(clamped)}
+      </text>
     </svg>
   );
 }
@@ -125,26 +149,43 @@ export default function Thermometer({ entry }) {
 
           {backtest.length > 0 && (
             <div>
-              <div style={{ fontSize: 12, color: C.muted, marginBottom: 8 }}>이 온도대였던 과거엔, 그 뒤 20일 평균</div>
-              <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
-                {backtest.map((row) => (
-                  <div key={row.bucket} style={{ display: "flex", justifyContent: "space-between", fontSize: 12, padding: "4px 0" }}>
-                    <span style={{ color: row.bucket === label ? C.ink : C.muted, fontWeight: row.bucket === label ? 700 : 400 }}>
-                      {row.bucket}{row.bucket === label ? " (지금)" : ""}
-                    </span>
-                    <span className="mono" style={{ color: C.muted }}>
-                      {row.avg_fwd_return === null
-                        ? "표본 부족"
-                        : <span style={{ color: row.avg_fwd_return >= 0 ? C.up : C.down, fontWeight: 600 }}>
-                            {row.avg_fwd_return >= 0 ? "+" : ""}{row.avg_fwd_return}% <span style={{ color: C.muted, fontWeight: 400 }}>(표본 {row.count}개)</span>
-                          </span>}
-                    </span>
-                  </div>
-                ))}
+              <div style={{ fontSize: 12, color: C.muted, marginBottom: 8 }}>이 온도대였던 과거엔, 그 뒤 수익률 평균</div>
+              <div className="hscroll-thermo" style={{ overflowX: "auto" }}>
+                <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 11 }}>
+                  <thead>
+                    <tr>
+                      <th style={{ textAlign: "left", padding: "4px 6px", color: C.muted, fontWeight: 600 }}>구간</th>
+                      {HORIZON_LABELS.map((h) => (
+                        <th key={h} style={{ textAlign: "right", padding: "4px 6px", color: C.muted, fontWeight: 600, whiteSpace: "nowrap" }}>{h}</th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {backtest.map((row) => (
+                      <tr key={row.bucket} style={{ borderTop: `1px solid ${C.ground}` }}>
+                        <td style={{ padding: "5px 6px", color: row.bucket === label ? C.ink : C.muted, fontWeight: row.bucket === label ? 700 : 400, whiteSpace: "nowrap" }}>
+                          {row.bucket}{row.bucket === label ? " ●" : ""}
+                        </td>
+                        {HORIZON_LABELS.map((h) => {
+                          const stat = row.horizons?.[h];
+                          if (!stat || stat.avg_return === null) {
+                            return <td key={h} className="mono" style={{ textAlign: "right", padding: "5px 6px", color: C.muted }}>–</td>;
+                          }
+                          return (
+                            <td key={h} className="mono" style={{ textAlign: "right", padding: "5px 6px", color: stat.avg_return >= 0 ? C.up : C.down, fontWeight: 600 }}>
+                              {stat.avg_return >= 0 ? "+" : ""}{stat.avg_return}%
+                              <div style={{ fontSize: 9, color: C.muted, fontWeight: 400 }}>표본 {stat.count}</div>
+                            </td>
+                          );
+                        })}
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
               </div>
               <div style={{ fontSize: 10, color: C.muted, marginTop: 8, lineHeight: 1.5 }}>
-                과거에 이 온도대였던 날들을 모아, 그 뒤 20일 수익률을 평균 낸 관찰 통계입니다.
-                앞으로도 같을 것이라는 예측이 아니며, 매수·매도를 추천하지 않습니다.
+                과거에 이 온도대였던 날들을 모아, 실제 달력 날짜 기준(거래일 개수 아님) 그 뒤 수익률을 평균 낸
+                관찰 통계입니다. 앞으로도 같을 것이라는 예측이 아니며, 매수·매도를 추천하지 않습니다.
               </div>
             </div>
           )}
