@@ -1,5 +1,6 @@
 import React, { useState, useMemo, useEffect, useRef } from "react";
 import Nav from "./Nav.jsx";
+import Thermometer from "./Thermometer.jsx";
 
 const TALLY_ID = "gDPDRO";
 
@@ -75,6 +76,16 @@ const gradeOf = (score) => {
 };
 
 const fmtDate = (s) => (s && String(s).length === 8 ? `${s.slice(0, 4)}.${s.slice(4, 6)}.${s.slice(6, 8)}` : "");
+
+// Diagnose/Screener와 같은 기준 - 백분위 90 이상인 팩터만 패턴으로 짚는다.
+const PATTERN_DEFS = [
+  { key: "high", min: 90, label: "신고가 임박" },
+  { key: "vol", min: 90, label: "거래량 폭발" },
+];
+const patternTags = (f) => {
+  if (!f) return [];
+  return PATTERN_DEFS.filter((p) => (f[p.key] ?? 0) >= p.min).map((p) => p.label);
+};
 
 function goDiagnose(name) {
   window.location.href = `/?page=diagnose&stock=${encodeURIComponent(name)}`;
@@ -273,7 +284,7 @@ export default function Landing() {
           </div>
         </section>
 
-        {/* 2) 시장 과열도: 코스피 / 코스닥 */}
+        {/* 2) 공탐지수: 온도계로 보여주는 코스피 / 코스닥 과열도 */}
         {indexHeat?.indexes && (
           <section id="feargreed" className="wrap" style={{ paddingBottom: 40, scrollMarginTop: 64 }}>
             <div style={{ display: "flex", alignItems: "baseline", gap: 10, marginBottom: 4, flexWrap: "wrap" }}>
@@ -281,38 +292,17 @@ export default function Landing() {
               <span style={{ fontSize: 11, color: C.muted }}>공포·탐욕 지수 · 코스피/코스닥</span>
             </div>
             <p style={{ fontSize: 11, color: C.muted, margin: "0 0 12px" }}>
-              앞으로 비트코인·금·환율 등 다른 자산도 추가될 예정입니다.
+              앞으로 비트코인·금·환율 등 다른 자산도 추가될 예정입니다. 눌러보면 90일 추이와 과거 성적을 볼 수 있습니다.
             </p>
             <div style={{ display: "grid", gap: 12, gridTemplateColumns: "repeat(auto-fit,minmax(300px,1fr))" }}>
               {["kospi", "kosdaq"].map(k => {
                 const ix = indexHeat.indexes[k];
                 if (!ix) return null;
                 return (
-                  <div key={k} style={{ background: C.panel, border: `1px solid ${C.line}`, borderRadius: 6, padding: 18 }}>
-                    <div style={{ display: "flex", alignItems: "baseline", gap: 8, marginBottom: 14 }}>
-                      <span style={{ fontSize: 16, fontWeight: 700 }}>{ix.name}</span>
-                      <span className="mono" style={{ fontSize: 13, color: C.muted }}>{ix.close.toLocaleString(undefined, { maximumFractionDigits: 2 })}</span>
-                      <span className="mono" style={{ fontSize: 12, fontWeight: 700, color: tone(ix.chg), marginLeft: "auto" }}>{pct(ix.chg)}</span>
-                    </div>
-                    <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 10 }}>
-                      {IDX_HORIZONS.map(({ k: hk, label, days }) => {
-                        const h = ix.horizons?.[hk];
-                        if (!h) return <div key={hk} />;
-                        const col = statusColor(h.status);
-                        return (
-                          <div key={hk}>
-                            <div style={{ fontSize: 11, color: C.muted, marginBottom: 4 }}>{label} · {days}</div>
-                            <div className="mono" style={{ fontSize: 26, fontWeight: 700, lineHeight: 1 }}>{Math.round(h.score)}</div>
-                            <div style={{ height: 4, background: "#F0F2F6", borderRadius: 2, margin: "8px 0 6px" }}>
-                              <div style={{ width: `${Math.min(100, h.score)}%`, height: "100%", background: col, borderRadius: 2 }} />
-                            </div>
-                            <div style={{ fontSize: 12, fontWeight: 700, color: col }}>{h.status}</div>
-                          </div>
-                        );
-                      })}
-                    </div>
+                  <div key={k}>
+                    <Thermometer entry={ix} />
                     {k === "kospi" && ix.horizons?.mid && (
-                      <div style={{ marginTop: 14, paddingTop: 12, borderTop: `1px solid ${C.line}` }}>
+                      <div style={{ marginTop: 8 }}>
                         {ix.horizons.mid.score < 40 ? (
                           <button
                             onClick={() => {
@@ -339,18 +329,16 @@ export default function Landing() {
                           >
                             탐욕 구간. 코스피보다 앞선 종목 찾아보기 →
                           </button>
-                        ) : (
-                          <div style={{ fontSize: 11, color: C.muted }}>중립 구간입니다.</div>
-                        )}
+                        ) : null}
                       </div>
                     )}
                   </div>
                 );
               })}
             </div>
-            <p style={{ fontSize: 11, color: C.muted, lineHeight: 1.6, margin: "10px 0 0" }}>
-              지수는 비교할 다른 종목이 없어서, <strong>최근 1년 중 지금이 얼마나 뜨거운 위치인지</strong>로 계산합니다.
-              높을수록 최근 1년 기준으로 과열(탐욕)에 가깝다는 뜻이며, 매수·매도 신호를 의미하지 않습니다.
+            <p style={{ fontSize: 11, color: C.muted, lineHeight: 1.6, margin: "12px 0 0" }}>
+              온도는 최근 1년 중 지금이 얼마나 뜨거운 위치인지를 나타냅니다. 높을수록 과열(탐욕)에 가깝다는 뜻이며,
+              매수·매도 신호를 의미하지 않습니다.
               {indexHeat.indexes.kospi?.date ? ` (${fmtDate(indexHeat.indexes.kospi.date)} 기준)` : ""}
             </p>
           </section>
