@@ -117,6 +117,41 @@ def load_flow():
         result[r["code"]] = {k: (None if pd.isna(v) else float(v)) for k, v in vals.items()}
     return result
 
+def load_sector_map():
+    """sector_map.csv(종목코드 -> KRX 업종)를 읽는다. 파일이 없으면 빈 딕셔너리를 돌려줘서
+    섹터 내 순위만 조용히 빠지고 나머지는 정상 동작한다."""
+    if not os.path.exists("sector_map.csv"):
+        return {}
+    df = pd.read_csv("sector_map.csv", dtype={"code": str})
+    if "code" not in df.columns or "sector_name" not in df.columns:
+        return {}
+    df = df.dropna(subset=["code", "sector_name"])
+    return dict(zip(df["code"], df["sector_name"]))
+
+SECTOR_MIN_SIZE = 10  # 업종 내 종목이 이보다 적으면 순위가 의미 없어서 표시하지 않는다(기업 체력 점수와 같은 기준)
+
+def build_sector_rank(kr_df, company_scores, sector_map):
+    """업종 안에서 시장 신호(5팩터 평균)와 기업 체력 각각의 순위를 계산한다.
+    반환: {종목코드: {"sector": 업종명, "market": [순위, 업종 내 종목수], "company": [순위, 종목수]}}"""
+    if not sector_map:
+        return {}
+    tmp = kr_df[["id", "total"]].copy()
+    tmp["sector"] = tmp["id"].map(sector_map)
+    tmp["company"] = tmp["id"].map(lambda c: (company_scores.get(c) or {}).get("score"))
+    result = {}
+    for sec, g in tmp.dropna(subset=["sector"]).groupby("sector"):
+        if len(g) < SECTOR_MIN_SIZE:
+            continue
+        m_rank = g["total"].rank(ascending=False, method="min")
+        for cid, rk in zip(g["id"], m_rank):
+            result[cid] = {"sector": sec, "market": [int(rk), int(len(g))]}
+        gc = g.dropna(subset=["company"])
+        if len(gc) >= SECTOR_MIN_SIZE:
+            c_rank = gc["company"].rank(ascending=False, method="min")
+            for cid, rk in zip(gc["id"], c_rank):
+                result[cid]["company"] = [int(rk), int(len(gc))]
+    return result
+
 def load_themes():
     if not os.path.exists("theme_map.csv"):
         return {}
@@ -221,7 +256,15 @@ if __name__ == "__main__":
     kr_df_by_cap = kr_df.sort_values("value", ascending=False).reset_index(drop=True)
     top_kr = kr_list[:cf.TOP_KR]
 
+    sector_map = load_sector_map()
+    sector_rank = build_sector_rank(kr_df, company_scores, sector_map)
+    print(f"업종 정보 로드: {len(sector_map)}개 / 업종 내 순위 계산: {len(sector_rank)}개")
+
     def attach_extra(item, code):
+        sr = sector_rank.get(code)
+        if sr:
+            item["sector_rank"] = sr
+
         comp = company_scores.get(code)
         if comp is not None:
             score_val = comp.get("score")
@@ -346,8 +389,16 @@ if __name__ == "__main__":
         json.dump(output, f, ensure_ascii=False, indent=2)
 
     hist = update_history()
-    _today = datetime.datetime.now() + datetime.timedelta(hours=9)
-    today_str = _today.strftime("%Y%m%d")
+    # 기록 날짜는 '오늘 날짜'가 아니라 원본 데이터의 마지막 거래일로 잡는다.
+    # 평일 휴장일(공휴일)에 자동 실행이 돌아도, 새 거래일이 없으면 같은 데이터가
+    # 휴일 날짜로 한 번 더 쌓여 추적 통계에 중복으로 섞이는 걸 막기 위함이다.
+    try:
+        _dates = pd.read_csv("raw_kr.csv", usecols=["날짜"])["날짜"]
+        today_str = pd.to_datetime(_dates).max().strftime("%Y%m%d")
+    except Exception:
+        _today = datetime.datetime.now() + datetime.timedelta(hours=9)
+        today_str = _today.strftime("%Y%m%d")
+    print(f"history 기록 기준일(마지막 거래일): {today_str}")
 
     if today_str not in hist["all"]:
         today_items = [{
