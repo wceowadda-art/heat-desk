@@ -232,6 +232,24 @@ def update_history():
         pass
     return {"all": {}, "large": {}, "mid": {}, "small": {}}
 
+def prune_weekend_keys(hist):
+    """history의 날짜 키 중 토·일은 거래일이 아니므로 지운다.
+    휴일 보호 장치를 넣기 전에 주말에 실행된 score.py가 같은 데이터를 주말 날짜로 한 번 더
+    쌓았기 때문이다. 지운 날짜 목록을 돌려준다."""
+    removed = set()
+    for bucket in hist.values():
+        if not isinstance(bucket, dict):
+            continue
+        for k in list(bucket.keys()):
+            try:
+                d = datetime.datetime.strptime(str(k), "%Y%m%d")
+            except ValueError:
+                continue
+            if d.weekday() >= 5:  # 5=토, 6=일
+                del bucket[k]
+                removed.add(str(k))
+    return sorted(removed)
+
 if __name__ == "__main__":
     kr_list, kr_df = build("raw_kr.csv",
                            {"close": "종가", "high": "고가", "low": "저가", "vol": "거래량"},
@@ -389,6 +407,9 @@ if __name__ == "__main__":
         json.dump(output, f, ensure_ascii=False, indent=2)
 
     hist = update_history()
+    pruned = prune_weekend_keys(hist)
+    if pruned:
+        print(f"history에서 주말 날짜 {len(pruned)}개 삭제: {pruned}")
     # 기록 날짜는 '오늘 날짜'가 아니라 원본 데이터의 마지막 거래일로 잡는다.
     # 평일 휴장일(공휴일)에 자동 실행이 돌아도, 새 거래일이 없으면 같은 데이터가
     # 휴일 날짜로 한 번 더 쌓여 추적 통계에 중복으로 섞이는 걸 막기 위함이다.
