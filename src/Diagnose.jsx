@@ -323,6 +323,7 @@ export default function Diagnose() {
         gap: found.gap ?? null,
         axes: found.axes ?? null,
         flow: found.flow ?? null,
+        sectorRank: found.sector_rank ?? null,
       });
       setStatus("found");
     }, 300);
@@ -555,6 +556,11 @@ export default function Diagnose() {
                 <div style={{ fontSize: 14, marginBottom: 4 }}>
                   현재 상태: <span style={{ fontWeight: 700, color: statusInfo.color }}>{statusInfo.label}</span>
                 </div>
+                {result.sectorRank?.market && (
+                  <div className="mono" style={{ fontSize: 12, color: C.muted, marginBottom: 4 }}>
+                    {result.sectorRank.sector} {result.sectorRank.market[1]}개 중 {result.sectorRank.market[0]}위
+                  </div>
+                )}
                 <div style={{ fontSize: 12, color: C.muted, marginBottom: 20, lineHeight: 1.5 }}>
                   같은 시점 전체 종목 중 상대적 위치입니다. 높을수록 거래량·모멘텀·신고가 근접 신호가 강하다는 뜻이며,
                   좋다·나쁘다를 의미하지 않습니다.
@@ -613,6 +619,11 @@ export default function Diagnose() {
                       <span className="mono" style={{ fontSize: 16, color: C.muted }}>/ 100</span>
                       <GradeBadge score={result.companyScore} />
                     </div>
+                    {result.sectorRank?.company && (
+                      <div className="mono" style={{ fontSize: 12, color: C.muted, marginBottom: 6 }}>
+                        {result.sectorRank.sector} {result.sectorRank.company[1]}개 중 {result.sectorRank.company[0]}위
+                      </div>
+                    )}
                     <div style={{ fontSize: 12, color: C.muted, lineHeight: 1.5 }}>
                       같은 업종 안에서의 상대 순위입니다. 영업이익률과 매출 규모, 부채비율 등을 반영했습니다.
                       아직 초기 버전이라 지표를 계속 보강하고 있습니다.
