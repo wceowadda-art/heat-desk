@@ -1,5 +1,5 @@
 {
-  "updated": "2026-10-04T01:17:53.672539",
+  "updated": "2026-10-06T01:41:27.402562",
   "indexes": {
     "kospi": {
       "name": "코스피",
@@ -444,20 +444,20 @@
           "bucket": "공포",
           "horizons": {
             "30일": {
-              "count": 288,
-              "avg_return": 3.18
+              "count": 286,
+              "avg_return": 3.22
             },
             "60일": {
-              "count": 283,
-              "avg_return": 7.18
+              "count": 281,
+              "avg_return": 7.29
             },
             "6개월": {
-              "count": 256,
-              "avg_return": 15.96
+              "count": 254,
+              "avg_return": 16.22
             },
             "1년": {
-              "count": 239,
-              "avg_return": 35.2
+              "count": 237,
+              "avg_return": 35.55
             }
           }
         },
@@ -470,15 +470,15 @@
             },
             "60일": {
               "count": 431,
-              "avg_return": 3.58
+              "avg_return": 3.55
             },
             "6개월": {
               "count": 398,
-              "avg_return": 13.69
+              "avg_return": 13.64
             },
             "1년": {
               "count": 363,
-              "avg_return": 28.54
+              "avg_return": 28.56
             }
           }
         },
@@ -969,20 +969,20 @@
           "bucket": "공포",
           "horizons": {
             "30일": {
-              "count": 224,
-              "avg_return": -0.77
+              "count": 220,
+              "avg_return": -0.88
             },
             "60일": {
-              "count": 204,
-              "avg_return": -1.88
+              "count": 200,
+              "avg_return": -1.99
             },
             "6개월": {
-              "count": 165,
-              "avg_return": 0.67
+              "count": 161,
+              "avg_return": 0.64
             },
             "1년": {
-              "count": 158,
-              "avg_return": 3.43
+              "count": 154,
+              "avg_return": 3.46
             }
           }
         },
@@ -990,20 +990,20 @@
           "bucket": "중립",
           "horizons": {
             "30일": {
-              "count": 525,
-              "avg_return": -0.06
+              "count": 523,
+              "avg_return": 0.04
             },
             "60일": {
-              "count": 524,
-              "avg_return": -0.39
+              "count": 522,
+              "avg_return": -0.31
             },
             "6개월": {
-              "count": 510,
-              "avg_return": 1.39
+              "count": 508,
+              "avg_return": 1.58
             },
             "1년": {
-              "count": 471,
-              "avg_return": 7.96
+              "count": 469,
+              "avg_return": 8.09
             }
           }
         },
@@ -1011,20 +1011,20 @@
           "bucket": "탐욕",
           "horizons": {
             "30일": {
-              "count": 236,
-              "avg_return": 0.38
+              "count": 240,
+              "avg_return": 0.23
             },
             "60일": {
-              "count": 236,
-              "avg_return": 1.49
+              "count": 240,
+              "avg_return": 1.31
             },
             "6개월": {
-              "count": 236,
-              "avg_return": 5.42
+              "count": 240,
+              "avg_return": 5.0
             },
             "1년": {
-              "count": 197,
-              "avg_return": 10.01
+              "count": 201,
+              "avg_return": 9.73
             }
           }
         },
