@@ -1,31 +1,31 @@
 {
-  "updated": "2026-10-06T01:41:27.402562",
+  "updated": "2026-10-06T23:45:06.405014",
   "indexes": {
     "kospi": {
       "name": "코스피",
-      "close": 7003.74,
-      "chg": 0.46,
-      "date": "20261002",
+      "close": 6941.39,
+      "chg": -0.89,
+      "date": "20261006",
       "horizons": {
         "short": {
           "days": 5,
-          "score": 44.2,
+          "score": 44.1,
           "status": "관찰 필요",
           "factors": {
-            "mom": 32.0,
-            "value": 28.8,
-            "high": 55.2,
-            "vola": 60.8
+            "mom": 42.0,
+            "value": 27.6,
+            "high": 50.0,
+            "vola": 56.8
           }
         },
         "mid": {
           "days": 20,
-          "score": 24.9,
+          "score": 25.3,
           "status": "잠잠함",
           "factors": {
-            "mom": 46.0,
-            "value": 16.4,
-            "high": 34.4,
+            "mom": 44.8,
+            "value": 17.2,
+            "high": 36.4,
             "vola": 2.8
           }
         },
@@ -34,33 +34,29 @@
           "score": 11.9,
           "status": "잠잠함",
           "factors": {
-            "mom": 14.0,
+            "mom": 17.2,
             "value": 0.4,
-            "high": 19.6,
-            "vola": 13.6
+            "high": 18.0,
+            "vola": 12.0
           }
         }
       },
       "returns": {
-        "short": -1.09,
-        "mid": 6.72,
-        "long": -13.01
+        "short": 0.75,
+        "mid": 5.5,
+        "long": -9.34
       },
       "temperature": {
-        "score": 24.9,
+        "score": 25.3,
         "label": "공포",
         "breakdown": {
-          "mom": 46.0,
-          "value": 16.4,
-          "high": 34.4,
+          "mom": 44.8,
+          "value": 17.2,
+          "high": 36.4,
           "vola": 2.8
         }
       },
       "temp_trend": [
-        {
-          "date": "20260522",
-          "score": 65.9
-        },
         {
           "date": "20260526",
           "score": 71.3
@@ -416,6 +412,10 @@
         {
           "date": "20261002",
           "score": 24.9
+        },
+        {
+          "date": "20261006",
+          "score": 25.3
         }
       ],
       "backtest": [
@@ -423,12 +423,12 @@
           "bucket": "극단적 공포",
           "horizons": {
             "30일": {
-              "count": 30,
-              "avg_return": 6.14
+              "count": 32,
+              "avg_return": 6.05
             },
             "60일": {
-              "count": 14,
-              "avg_return": 10.41
+              "count": 18,
+              "avg_return": 10.07
             },
             "6개월": {
               "count": 8,
@@ -452,8 +452,8 @@
               "avg_return": 7.29
             },
             "6개월": {
-              "count": 254,
-              "avg_return": 16.22
+              "count": 256,
+              "avg_return": 16.3
             },
             "1년": {
               "count": 237,
@@ -528,64 +528,60 @@
     },
     "kosdaq": {
       "name": "코스닥",
-      "close": 893.29,
-      "chg": -0.11,
-      "date": "20261002",
+      "close": 919.92,
+      "chg": 2.98,
+      "date": "20261006",
       "horizons": {
         "short": {
           "days": 5,
-          "score": 77.4,
+          "score": 89.6,
           "status": "과열 주의",
           "factors": {
-            "mom": 89.6,
-            "value": 64.4,
-            "high": 77.2,
-            "vola": 78.4
+            "mom": 94.8,
+            "value": 84.8,
+            "high": 100.0,
+            "vola": 78.8
           }
         },
         "mid": {
           "days": 20,
-          "score": 62.4,
+          "score": 68.6,
           "status": "관찰 필요",
           "factors": {
-            "mom": 86.0,
-            "value": 78.0,
-            "high": 82.4,
-            "vola": 3.2
+            "mom": 92.4,
+            "value": 80.0,
+            "high": 100.0,
+            "vola": 2.0
           }
         },
         "long": {
           "days": 60,
-          "score": 22.3,
+          "score": 28.4,
           "status": "잠잠함",
           "factors": {
-            "mom": 40.8,
-            "value": 5.2,
-            "high": 26.0,
-            "vola": 17.2
+            "mom": 63.2,
+            "value": 6.4,
+            "high": 28.0,
+            "vola": 16.0
           }
         }
       },
       "returns": {
-        "short": 5.78,
-        "mid": 11.11,
-        "long": 5.46
+        "short": 8.66,
+        "mid": 16.41,
+        "long": 10.67
       },
       "temperature": {
-        "score": 62.4,
+        "score": 68.6,
         "label": "탐욕",
         "breakdown": {
-          "mom": 86.0,
-          "value": 78.0,
-          "high": 82.4,
-          "vola": 3.2
+          "mom": 92.4,
+          "value": 80.0,
+          "high": 100.0,
+          "vola": 2.0
         }
       },
       "temp_trend": [
-        {
-          "date": "20260522",
-          "score": 36.5
-        },
         {
           "date": "20260526",
           "score": 38.5
@@ -941,6 +937,10 @@
         {
           "date": "20261002",
           "score": 62.4
+        },
+        {
+          "date": "20261006",
+          "score": 68.6
         }
       ],
       "backtest": [
@@ -948,16 +948,16 @@
           "bucket": "극단적 공포",
           "horizons": {
             "30일": {
-              "count": 45,
-              "avg_return": 4.39
+              "count": 46,
+              "avg_return": 4.65
             },
             "60일": {
               "count": 45,
               "avg_return": 3.01
             },
             "6개월": {
-              "count": 17,
-              "avg_return": 6.04
+              "count": 19,
+              "avg_return": 4.17
             },
             "1년": {
               "count": 16,
@@ -969,12 +969,12 @@
           "bucket": "공포",
           "horizons": {
             "30일": {
-              "count": 220,
-              "avg_return": -0.88
+              "count": 221,
+              "avg_return": -0.81
             },
             "60일": {
-              "count": 200,
-              "avg_return": -1.99
+              "count": 204,
+              "avg_return": -1.65
             },
             "6개월": {
               "count": 161,
