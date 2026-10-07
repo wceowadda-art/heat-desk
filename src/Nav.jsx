@@ -13,6 +13,7 @@ export default function Nav({ page = "home" }) {
   const items = [
     { key: "home", label: "홈", href: "/" },
     { key: "diagnose", label: "종목 진단", href: "/?page=diagnose" },
+    { key: "compare", label: "비교", href: "/?page=compare" },
     { key: "screener", label: "스크리너", href: "/?page=screener" },
     { key: "theme", label: "테마", href: "/?page=theme" },
     { key: "feargreed", label: "공탐지수", href: "/#feargreed" },

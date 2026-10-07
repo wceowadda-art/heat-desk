@@ -507,6 +507,15 @@ export default function Diagnose() {
                       <span className="mono" style={{ fontSize: 13, color: C.muted }}> / 100</span>
                     </div>
                   )}
+                  <div style={{ marginTop: 14 }}>
+                    <a
+                      href={`/?page=compare&a=${encodeURIComponent(result.name)}`}
+                      onClick={() => { if (window.gtag) window.gtag("event", "compare_entry_click", { stock_name: result.name }); }}
+                      style={{ fontSize: 12, fontWeight: 600, color: C.ink, textDecoration: "none", border: `1px solid ${C.line}`, borderRadius: 4, padding: "7px 12px", display: "inline-block" }}
+                    >
+                      다른 종목과 비교하기 →
+                    </a>
+                  </div>
                 </div>
               )}
 

@@ -4,6 +4,7 @@ import Landing from './Landing.jsx'
 import Diagnose from './Diagnose.jsx'
 import Screener from './Screener.jsx'
 import Theme from './Theme.jsx'
+import Compare from './Compare.jsx'
 
 const GA_MEASUREMENT_ID = 'G-J4TJTDJHG2'
 
@@ -31,7 +32,7 @@ function App() {
   }, [])
 
   useEffect(() => {
-    // 페이지 전환(홈/진단/스크리너/테마)마다 페이지뷰를 별도로 기록한다.
+    // 페이지 전환(홈/진단/비교/스크리너/테마)마다 페이지뷰를 별도로 기록한다.
     if (window.gtag) {
       window.gtag('event', 'page_view', {
         page_title: page,
@@ -43,6 +44,7 @@ function App() {
   if (page === 'diagnose') return <Diagnose />
   if (page === 'screener') return <Screener />
   if (page === 'theme') return <Theme />
+  if (page === 'compare') return <Compare />
   return <Landing />
 }
 
