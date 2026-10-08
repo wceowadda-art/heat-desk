@@ -1,66 +1,62 @@
 {
-  "updated": "2026-10-08T00:03:50.175464",
+  "updated": "2026-10-09T00:13:53.108904",
   "indexes": {
     "kospi": {
       "name": "코스피",
-      "close": 6803.9,
-      "chg": -1.98,
-      "date": "20261007",
+      "close": 6625.93,
+      "chg": -2.62,
+      "date": "20261008",
       "horizons": {
         "short": {
           "days": 5,
-          "score": 42.4,
-          "status": "관찰 필요",
+          "score": 39.8,
+          "status": "잠잠함",
           "factors": {
-            "mom": 32.8,
-            "value": 32.4,
-            "high": 39.2,
-            "vola": 65.2
+            "mom": 21.6,
+            "value": 40.4,
+            "high": 28.4,
+            "vola": 68.8
           }
         },
         "mid": {
           "days": 20,
-          "score": 22.6,
+          "score": 17.3,
           "status": "잠잠함",
           "factors": {
-            "mom": 31.6,
-            "value": 19.6,
-            "high": 34.8,
-            "vola": 4.4
+            "mom": 14.8,
+            "value": 20.0,
+            "high": 28.8,
+            "vola": 5.6
           }
         },
         "long": {
           "days": 60,
-          "score": 10.3,
+          "score": 8.9,
           "status": "잠잠함",
           "factors": {
             "mom": 18.0,
             "value": 0.4,
-            "high": 11.6,
-            "vola": 11.2
+            "high": 6.8,
+            "vola": 10.4
           }
         }
       },
       "returns": {
-        "short": -0.97,
-        "mid": 1.74,
-        "long": -6.11
+        "short": -3.1,
+        "mid": -5.28,
+        "long": -9.13
       },
       "temperature": {
-        "score": 22.6,
-        "label": "공포",
+        "score": 17.3,
+        "label": "극단적 공포",
         "breakdown": {
-          "mom": 31.6,
-          "value": 19.6,
-          "high": 34.8,
-          "vola": 4.4
+          "mom": 14.8,
+          "value": 20.0,
+          "high": 28.8,
+          "vola": 5.6
         }
       },
       "temp_trend": [
-        {
-          "date": "20260527",
-          "score": 66.8
-        },
         {
           "date": "20260528",
           "score": 66.2
@@ -416,6 +412,10 @@
         {
           "date": "20261007",
           "score": 22.6
+        },
+        {
+          "date": "20261008",
+          "score": 17.3
         }
       ],
       "backtest": [
@@ -423,8 +423,8 @@
           "bucket": "극단적 공포",
           "horizons": {
             "30일": {
-              "count": 32,
-              "avg_return": 6.05
+              "count": 33,
+              "avg_return": 5.72
             },
             "60일": {
               "count": 18,
@@ -452,8 +452,8 @@
               "avg_return": 7.26
             },
             "6개월": {
-              "count": 258,
-              "avg_return": 16.2
+              "count": 259,
+              "avg_return": 16.19
             },
             "1년": {
               "count": 238,
@@ -528,64 +528,60 @@
     },
     "kosdaq": {
       "name": "코스닥",
-      "close": 898.43,
-      "chg": -2.34,
-      "date": "20261007",
+      "close": 892.27,
+      "chg": -0.69,
+      "date": "20261008",
       "horizons": {
         "short": {
           "days": 5,
-          "score": 77.8,
+          "score": 75.0,
           "status": "과열 주의",
           "factors": {
-            "mom": 88.4,
-            "value": 83.6,
-            "high": 59.6,
-            "vola": 79.6
+            "mom": 82.4,
+            "value": 80.0,
+            "high": 54.0,
+            "vola": 83.6
           }
         },
         "mid": {
           "days": 20,
-          "score": 59.6,
+          "score": 58.2,
           "status": "관찰 필요",
           "factors": {
-            "mom": 84.4,
-            "value": 80.4,
-            "high": 70.4,
-            "vola": 3.2
+            "mom": 80.8,
+            "value": 82.0,
+            "high": 64.4,
+            "vola": 5.6
           }
         },
         "long": {
           "days": 60,
-          "score": 31.1,
+          "score": 29.3,
           "status": "잠잠함",
           "factors": {
-            "mom": 75.6,
-            "value": 7.6,
-            "high": 26.8,
-            "vola": 14.4
+            "mom": 70.8,
+            "value": 8.0,
+            "high": 26.0,
+            "vola": 12.4
           }
         }
       },
       "returns": {
-        "short": 5.72,
-        "mid": 10.44,
-        "long": 14.45
+        "short": 4.25,
+        "mid": 8.52,
+        "long": 12.38
       },
       "temperature": {
-        "score": 59.6,
+        "score": 58.2,
         "label": "중립",
         "breakdown": {
-          "mom": 84.4,
-          "value": 80.4,
-          "high": 70.4,
-          "vola": 3.2
+          "mom": 80.8,
+          "value": 82.0,
+          "high": 64.4,
+          "vola": 5.6
         }
       },
       "temp_trend": [
-        {
-          "date": "20260527",
-          "score": 30.9
-        },
         {
           "date": "20260528",
           "score": 30.9
@@ -941,6 +937,10 @@
         {
           "date": "20261007",
           "score": 59.6
+        },
+        {
+          "date": "20261008",
+          "score": 58.2
         }
       ],
       "backtest": [
@@ -948,16 +948,16 @@
           "bucket": "극단적 공포",
           "horizons": {
             "30일": {
-              "count": 46,
-              "avg_return": 4.65
+              "count": 47,
+              "avg_return": 4.76
             },
             "60일": {
               "count": 45,
               "avg_return": 3.01
             },
             "6개월": {
-              "count": 20,
-              "avg_return": 3.09
+              "count": 21,
+              "avg_return": 2.13
             },
             "1년": {
               "count": 16,
