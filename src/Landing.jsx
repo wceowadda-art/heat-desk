@@ -284,6 +284,47 @@ export default function Landing() {
           </div>
         </section>
 
+        {/* 1-1) 처음이세요? 3단계 안내 */}
+        <section className="wrap" style={{ paddingBottom: 36 }}>
+          <div style={{ display: "flex", alignItems: "baseline", gap: 10, marginBottom: 12, flexWrap: "wrap" }}>
+            <h2 style={{ margin: 0, fontSize: 14, fontWeight: 700, letterSpacing: ".06em" }}>처음이세요?</h2>
+            <span style={{ fontSize: 11, color: C.muted }}>3단계면 충분해요 · 매수/매도 추천은 하지 않아요</span>
+          </div>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: 10 }}>
+            {[
+              { n: "1", t: "종목 검색", d: "관심 있는 종목 이름을 위 검색창에 넣어요." },
+              { n: "2", t: "신호 4가지 확인", d: "시장 신호 · 기업 체력 · 최근 공시 · 테마를 한 화면에서 봐요." },
+              { n: "3", t: "내 기준으로 비교", d: "다른 종목과 나란히 놓거나, 내 조건으로 종목을 찾아요." },
+            ].map(s => (
+              <div key={s.n} style={{ background: C.panel, border: `1px solid ${C.line}`, borderRadius: 4, padding: "14px 14px 16px" }}>
+                <div className="anton" style={{ fontSize: 26, lineHeight: 1, color: C.ink }}>{s.n}</div>
+                <div style={{ fontSize: 14, fontWeight: 700, marginTop: 8 }}>{s.t}</div>
+                <div style={{ fontSize: 12, color: C.muted, lineHeight: 1.5, marginTop: 4 }}>{s.d}</div>
+              </div>
+            ))}
+          </div>
+          <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginTop: 12 }}>
+            {[
+              { k: "theme", label: "테마별로 보기", sub: "화제성 5단계 · 소속 종목", href: "/?page=theme" },
+              { k: "compare", label: "두 종목 비교하기", sub: "레이더 겹쳐 보기", href: "/?page=compare" },
+              { k: "screener", label: "내 기준으로 찾기", sub: "조건 직접 조합", href: "/?page=screener" },
+            ].map(b => (
+              <button key={b.k} className="screener-tile"
+                onClick={() => {
+                  if (window.gtag) window.gtag("event", "home_guide_click", { target: b.k });
+                  window.location.href = b.href;
+                }}
+                style={{
+                  cursor: "pointer", flex: "1 1 180px", padding: "11px 14px", borderRadius: 4,
+                  border: `1px solid ${C.line}`, background: C.panel, fontFamily: "inherit", textAlign: "left",
+                }}>
+                <div style={{ fontSize: 13, fontWeight: 700, color: C.ink }}>{b.label} →</div>
+                <div style={{ fontSize: 11, color: C.muted, marginTop: 2 }}>{b.sub}</div>
+              </button>
+            ))}
+          </div>
+        </section>
+
         {/* 2) 공탐지수: 온도계로 보여주는 코스피 / 코스닥 과열도 */}
         {indexHeat?.indexes && (
           <section id="feargreed" className="wrap" style={{ paddingBottom: 40, scrollMarginTop: 64 }}>

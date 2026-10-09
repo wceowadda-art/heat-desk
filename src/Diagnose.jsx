@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useMemo } from "react";
 import Nav from "./Nav.jsx";
+import ShareButton from "./ShareButton.jsx";
 
 const C = {
   ground: "#E9ECF2",
@@ -481,6 +482,14 @@ export default function Diagnose() {
               {formattedDate && (
                 <div style={{ fontSize: 11, color: C.muted, marginBottom: 12 }}>{formattedDate}</div>
               )}
+
+              <div style={{ marginBottom: 12 }}>
+                <ShareButton
+                  kind="diagnose"
+                  url={`/?page=diagnose&stock=${encodeURIComponent(result.name)}`}
+                  title={`${result.name} 시장 신호 · HEAT DESK`}
+                />
+              </div>
 
               {patternTags(result.factors).length > 0 && (
                 <div style={{ display: "flex", gap: 6, marginBottom: 12 }}>

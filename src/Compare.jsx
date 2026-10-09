@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useMemo } from "react";
 import Nav from "./Nav.jsx";
+import ShareButton from "./ShareButton.jsx";
 
 const C = {
   ground: "#E9ECF2",
@@ -303,6 +304,15 @@ export default function Compare() {
               <div style={{ fontSize: 11, color: C.muted, textAlign: "center", marginTop: 8, lineHeight: 1.6 }}>
                 바깥으로 갈수록 점수가 높습니다. 점은 값이 있는 축에만 찍히고, 자료가 없는 축은 0으로 이어집니다.
               </div>
+              {A && B && (
+                <div style={{ textAlign: "center", marginTop: 12 }}>
+                  <ShareButton
+                    kind="compare"
+                    url={`/?page=compare&a=${encodeURIComponent(A.name)}&b=${encodeURIComponent(B.name)}`}
+                    title={`${A.name} vs ${B.name} 비교 · HEAT DESK`}
+                  />
+                </div>
+              )}
             </div>
 
             {A && B && (
