@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useMemo, useRef } from "react";
 import Nav from "./Nav.jsx";
+import ShareButton from "./ShareButton.jsx";
 
 const C = {
   ground: "#E9ECF2",
@@ -83,6 +84,36 @@ const PRESETS = [
   { key: "lagging_kospi", label: "최근 코스피보다 뒤처진 종목", conds: [{ id: "gap_mid", op: "lte", value: -10 }] },
   { key: "leading_kospi", label: "최근 코스피보다 앞선 종목", conds: [{ id: "gap_mid", op: "gte", value: 10 }] },
 ];
+
+// 조건 배열 <-> 주소 문자열. 내가 만든 조건을 링크로 보내고 그대로 열 수 있게 한다.
+// 형식: id:op:value 를 | 로 이음. 예) company:gte:70|event_has:is:false
+const encodeConds = (conds) =>
+  conds.map((c) => `${c.id}:${c.op}:${c.value}`).join("|");
+
+const decodeConds = (str) => {
+  if (!str) return [];
+  const out = [];
+  str.split("|").slice(0, 8).forEach((part) => {
+    const [id, op, ...rest] = part.split(":");
+    const raw = rest.join(":");
+    const d = byId[id];
+    if (!d || d.ready === false || out.some((c) => c.id === id)) return;
+    if (d.kind === "score" || d.kind === "gap") {
+      const n = Number(raw);
+      if (!Number.isFinite(n) || (op !== "gte" && op !== "lte")) return;
+      out.push({ id, op, value: n });
+    } else if (d.kind === "grade") {
+      const n = Number(raw);
+      if (!Number.isFinite(n)) return;
+      out.push({ id, op: "gte", value: Math.max(1, Math.min(5, Math.round(n))) });
+    } else if (d.kind === "flag") {
+      out.push({ id, op: "is", value: raw === "true" });
+    } else if (d.kind === "theme") {
+      out.push({ id, op: "in", value: raw });
+    }
+  });
+  return out;
+};
 
 const defaultCond = (id) => {
   const d = byId[id];
@@ -178,7 +209,11 @@ export default function Screener() {
     // 홈의 공탐지수 카드 등 외부에서 /?page=screener&preset=<key> 로 들어오면 그 프리셋을 바로 채워준다.
     const params = new URLSearchParams(window.location.search);
     const presetKey = params.get("preset");
-    if (presetKey) {
+    const shared = decodeConds(params.get("c"));
+    if (shared.length) {
+      setConds(shared.map((c) => ({ ...c, uid: ++uid.current })));
+      if (window.gtag) window.gtag("event", "screener_shared_open", { count: shared.length });
+    } else if (presetKey) {
       const matched = PRESETS.find((p) => p.key === presetKey);
       if (matched) {
         setConds(matched.conds.map((c) => ({ ...c, uid: ++uid.current })));
@@ -186,6 +221,16 @@ export default function Screener() {
       }
     }
   }, []);
+
+  // 담긴 조건을 주소에 반영 (공유 링크용). 조건이 없으면 기본 주소로.
+  const shareUrl = useMemo(
+    () => (conds.length ? `/?page=screener&c=${encodeURIComponent(encodeConds(conds))}` : "/?page=screener"),
+    [conds]
+  );
+  useEffect(() => {
+    if (loading) return; // 처음 열 때 들어온 ?c= / ?preset= 값을 읽기 전에 지우지 않는다
+    window.history.replaceState(null, "", shareUrl);
+  }, [shareUrl, loading]);
 
   const themeNames = useMemo(() => {
     const set = new Set();
@@ -349,8 +394,11 @@ export default function Screener() {
         {conds.length > 0 && !loading && (
           <section className="wrap" style={{ paddingBottom: 48 }}>
             <div style={{ background: C.panel, border: `1px solid ${C.line}`, borderRadius: 6, padding: "18px 0" }}>
-              <div style={{ padding: "0 18px", marginBottom: 12, fontSize: 13, fontWeight: 700 }}>
-                조건에 맞는 종목 {matched.toLocaleString()}개{matched > TOP_N ? ` 중 상위 ${TOP_N}개` : ""}
+              <div style={{ padding: "0 18px", marginBottom: 12, display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8, flexWrap: "wrap" }}>
+                <span style={{ fontSize: 13, fontWeight: 700 }}>
+                  조건에 맞는 종목 {matched.toLocaleString()}개{matched > TOP_N ? ` 중 상위 ${TOP_N}개` : ""}
+                </span>
+                <ShareButton kind="screener" url={shareUrl} title="내 기준으로 찾은 종목 조건 · HEAT DESK" />
               </div>
               {results.length === 0 ? (
                 <div style={{ padding: "8px 18px", fontSize: 13, color: C.muted }}>지금은 조건에 맞는 종목이 없습니다. 기준을 조금 느슨하게 바꿔보세요.</div>

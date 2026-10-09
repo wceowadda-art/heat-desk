@@ -439,7 +439,14 @@ export default function Landing() {
                     <div style={{ display: "flex", height: 9, background: "#F0F2F6", borderRadius: 1 }}>
                       {d.parts.map(p => (<div key={p.id} style={{ width: `${p.value}%`, background: p.color }} />))}
                     </div>
-                    <div style={{ fontSize: 10, color: C.muted, textAlign: "right" }}>종목 상태 보기 →</div>
+                    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8, fontSize: 10, color: C.muted }}>
+                      <span style={{ display: "flex", gap: 5, flexWrap: "wrap" }}>
+                        {patternTags(d.f).map(t => (
+                          <span key={t} className="mono" style={{ fontSize: 10, fontWeight: 700, color: "#fff", background: C.up, padding: "1px 7px", borderRadius: 999, whiteSpace: "nowrap" }}>{t}</span>
+                        ))}
+                      </span>
+                      <span style={{ whiteSpace: "nowrap" }}>종목 상태 보기 →</span>
+                    </div>
                   </div>
                 ))}
               </div>
