@@ -1,32 +1,32 @@
 {
-  "updated": "2026-11-21T01:39:38.667918",
+  "updated": "2026-11-24T04:46:53.445860",
   "indexes": {
     "kospi": {
       "name": "코스피",
-      "close": 4869.96,
-      "chg": -5.21,
-      "date": "20261120",
+      "close": 4708.54,
+      "chg": -3.31,
+      "date": "20261123",
       "horizons": {
         "short": {
           "days": 5,
-          "score": 17.2,
+          "score": 14.3,
           "status": "잠잠함",
           "factors": {
-            "mom": 11.6,
-            "value": 10.4,
-            "high": 12.0,
-            "vola": 34.8
+            "mom": 12.8,
+            "value": 9.2,
+            "high": 9.2,
+            "vola": 26.0
           }
         },
         "mid": {
           "days": 20,
-          "score": 30.5,
+          "score": 31.9,
           "status": "잠잠함",
           "factors": {
-            "mom": 18.0,
-            "value": 40.8,
-            "high": 4.0,
-            "vola": 59.2
+            "mom": 14.4,
+            "value": 46.4,
+            "high": 1.6,
+            "vola": 65.2
           }
         },
         "long": {
@@ -35,32 +35,28 @@
           "status": "잠잠함",
           "factors": {
             "mom": 0.4,
-            "value": 0.4,
+            "value": 0.8,
             "high": 0.4,
-            "vola": 1.2
+            "vola": 0.8
           }
         }
       },
       "returns": {
-        "short": -7.95,
-        "mid": -12.26,
-        "long": -27.28
+        "short": -7.68,
+        "mid": -13.91,
+        "long": -30.17
       },
       "temperature": {
-        "score": 30.5,
+        "score": 31.9,
         "label": "공포",
         "breakdown": {
-          "mom": 18.0,
-          "value": 40.8,
-          "high": 4.0,
-          "vola": 59.2
+          "mom": 14.4,
+          "value": 46.4,
+          "high": 1.6,
+          "vola": 65.2
         }
       },
       "temp_trend": [
-        {
-          "date": "20260710",
-          "score": 29.0
-        },
         {
           "date": "20260713",
           "score": 29.8
@@ -416,6 +412,10 @@
         {
           "date": "20261120",
           "score": 30.5
+        },
+        {
+          "date": "20261123",
+          "score": 31.9
         }
       ],
       "backtest": [
@@ -423,12 +423,12 @@
           "bucket": "극단적 공포",
           "horizons": {
             "30일": {
-              "count": 55,
-              "avg_return": -2.2
+              "count": 57,
+              "avg_return": -2.65
             },
             "60일": {
-              "count": 41,
-              "avg_return": -5.05
+              "count": 43,
+              "avg_return": -6.36
             },
             "6개월": {
               "count": 8,
@@ -465,20 +465,20 @@
           "bucket": "중립",
           "horizons": {
             "30일": {
-              "count": 407,
-              "avg_return": 2.14
+              "count": 399,
+              "avg_return": 2.3
             },
             "60일": {
-              "count": 407,
-              "avg_return": 3.94
+              "count": 399,
+              "avg_return": 4.15
             },
             "6개월": {
-              "count": 395,
-              "avg_return": 13.26
+              "count": 387,
+              "avg_return": 13.79
             },
             "1년": {
-              "count": 339,
-              "avg_return": 31.25
+              "count": 332,
+              "avg_return": 32.1
             }
           }
         },
@@ -486,20 +486,20 @@
           "bucket": "탐욕",
           "horizons": {
             "30일": {
-              "count": 265,
-              "avg_return": 0.82
+              "count": 269,
+              "avg_return": 0.67
             },
             "60일": {
-              "count": 265,
-              "avg_return": 1.6
+              "count": 269,
+              "avg_return": 1.42
             },
             "6개월": {
-              "count": 256,
-              "avg_return": 13.17
+              "count": 260,
+              "avg_return": 12.8
             },
             "1년": {
-              "count": 233,
-              "avg_return": 31.79
+              "count": 237,
+              "avg_return": 31.18
             }
           }
         },
@@ -507,20 +507,20 @@
           "bucket": "극단적 탐욕",
           "horizons": {
             "30일": {
-              "count": 104,
-              "avg_return": 0.54
+              "count": 105,
+              "avg_return": 0.53
             },
             "60일": {
-              "count": 104,
-              "avg_return": 2.5
+              "count": 105,
+              "avg_return": 2.48
             },
             "6개월": {
-              "count": 101,
-              "avg_return": 28.19
+              "count": 102,
+              "avg_return": 27.97
             },
             "1년": {
-              "count": 85,
-              "avg_return": 62.46
+              "count": 86,
+              "avg_return": 61.8
             }
           }
         }
@@ -528,64 +528,60 @@
     },
     "kosdaq": {
       "name": "코스닥",
-      "close": 645.68,
-      "chg": -5.71,
-      "date": "20261120",
+      "close": 635.45,
+      "chg": -1.58,
+      "date": "20261123",
       "horizons": {
         "short": {
           "days": 5,
-          "score": 35.2,
+          "score": 35.0,
           "status": "잠잠함",
           "factors": {
-            "mom": 11.2,
-            "value": 48.8,
-            "high": 24.8,
-            "vola": 56.0
+            "mom": 25.6,
+            "value": 48.0,
+            "high": 25.2,
+            "vola": 41.2
           }
         },
         "mid": {
           "days": 20,
-          "score": 28.9,
+          "score": 30.0,
           "status": "잠잠함",
           "factors": {
-            "mom": 16.8,
+            "mom": 20.4,
             "value": 22.8,
-            "high": 12.8,
-            "vola": 63.2
+            "high": 10.8,
+            "vola": 66.0
           }
         },
         "long": {
           "days": 60,
-          "score": 12.2,
+          "score": 10.3,
           "status": "잠잠함",
           "factors": {
-            "mom": 17.2,
-            "value": 24.4,
-            "high": 1.6,
-            "vola": 5.6
+            "mom": 13.2,
+            "value": 25.2,
+            "high": 0.4,
+            "vola": 2.4
           }
         }
       },
       "returns": {
-        "short": -7.72,
-        "mid": -14.1,
-        "long": -20.61
+        "short": -4.54,
+        "mid": -12.62,
+        "long": -23.18
       },
       "temperature": {
-        "score": 28.9,
+        "score": 30.0,
         "label": "공포",
         "breakdown": {
-          "mom": 16.8,
+          "mom": 20.4,
           "value": 22.8,
-          "high": 12.8,
-          "vola": 63.2
+          "high": 10.8,
+          "vola": 66.0
         }
       },
       "temp_trend": [
-        {
-          "date": "20260710",
-          "score": 18.5
-        },
         {
           "date": "20260713",
           "score": 18.7
@@ -941,6 +937,10 @@
         {
           "date": "20261120",
           "score": 28.9
+        },
+        {
+          "date": "20261123",
+          "score": 30.0
         }
       ],
       "backtest": [
@@ -969,12 +969,12 @@
           "bucket": "공포",
           "horizons": {
             "30일": {
-              "count": 231,
-              "avg_return": -1.3
+              "count": 233,
+              "avg_return": -1.43
             },
             "60일": {
-              "count": 224,
-              "avg_return": -2.95
+              "count": 226,
+              "avg_return": -3.14
             },
             "6개월": {
               "count": 166,
@@ -990,20 +990,20 @@
           "bucket": "중립",
           "horizons": {
             "30일": {
-              "count": 512,
-              "avg_return": -0.3
+              "count": 511,
+              "avg_return": -0.26
             },
             "60일": {
-              "count": 504,
-              "avg_return": -0.29
+              "count": 503,
+              "avg_return": -0.24
             },
             "6개월": {
-              "count": 503,
-              "avg_return": 0.78
+              "count": 502,
+              "avg_return": 0.89
             },
             "1년": {
               "count": 450,
-              "avg_return": 8.59
+              "avg_return": 8.58
             }
           }
         },
@@ -1011,20 +1011,20 @@
           "bucket": "탐욕",
           "horizons": {
             "30일": {
-              "count": 237,
-              "avg_return": -0.21
+              "count": 235,
+              "avg_return": -0.24
             },
             "60일": {
-              "count": 234,
-              "avg_return": 1.37
+              "count": 232,
+              "avg_return": 1.36
             },
             "6개월": {
-              "count": 234,
-              "avg_return": 5.74
+              "count": 232,
+              "avg_return": 5.92
             },
             "1년": {
-              "count": 210,
-              "avg_return": 8.73
+              "count": 208,
+              "avg_return": 8.85
             }
           }
         },
